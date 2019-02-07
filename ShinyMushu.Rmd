@@ -9,3 +9,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r packages}
+
+library(tidyverse)
+
+```
+
+```{r data}
+
+HAB <- read_csv("HAB.csv") # Read in data: "Hamful Algal Blooms 2008-2019"
+
+```
+
