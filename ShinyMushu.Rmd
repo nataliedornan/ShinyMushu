@@ -21,19 +21,12 @@ library(janitor)
 
 HAB <- read_csv("HAB.csv") # Read in data: "Hamful Algal Blooms 2008-2019"
 
-<<<<<<< HEAD
-clean_hab <- HAB %>%
-  clean_names(., case = c("snake")) 
-=======
 #Clean up the data
 clean_hab <- HAB %>% 
   clean_names(., case = c("snake")) %>%
-<<<<<<< HEAD
+
   select(year, month, day, latitude, longitude, location, akashiwo_sanguinea_cells_l, alexandrium_spp_cells_l, ammonia_u_m, chlorophyll_mg_m3, domoic_acid_ng_m_l, nitrate_u_m, nitrite_u_m, phosphate_u_m, pseudo_nitzschia_delicatissima_group_cells_l, pseudo_nitzschia_seriata_group_cells_l, silicate_u_m, water_temperature_u_00b0_c) 
-=======
-  select(year, month, day, latitude, longitude, location, akashiwo_sanguinea_cells_l, alexandrium_spp_cells_l, ammonia_u_m, chlorophyll_mg_m3, domoic_acid_ng_m_l, nitrate_u_m, nitrite_u_m, phosphate_u_m, pseudo_nitzschia_delicatissima_group_cells_l, pseudo_nitzschia_seriata_group_cells_l, silicate_u_m, water_temperature_u_00b0_c)
->>>>>>> 121e9f94b583a1b35aefc9e1b9ab6cc184ce6069
->>>>>>> 1232848fdb5a6bc0ae44b68dfbe519fdc09f2d6f
+
 
 ```
 
