@@ -21,8 +21,8 @@ library(janitor)
 
 HAB <- read_csv("HAB.csv") # Read in data: "Hamful Algal Blooms 2008-2019"
 
-clean_hab <- HAB %>% 
-  clean_names(., case = c("snake"))
+clean_hab <- HAB %>%
+  clean_names(., case = c("snake")) 
 
 ```
 
