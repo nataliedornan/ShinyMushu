@@ -47,6 +47,20 @@ clean_hab <- HAB %>%
 
 ```{r LAURA - Tab 2: HAB abundance chart}
 
+chlorophyll_col <- ggplot(clean_hab, aes(x = month, y = chlorophyll)) +
+  geom_col(fill = "seagreen3", color = "seagreen") +
+  labs(x = "Month", y = "Chlorophyll Concentration (mg/L)") +
+  theme_bw() 
+
+chlorophyll_col
+
+domoic_col <- ggplot(clean_hab, aes(x = month, y = domoic_acid)) +
+  geom_col(fill = "cornflowerblue", color = "royalblue") +
+  labs(x = "Month", y = "Domoic Acid Concentration (mg/L)") +
+  theme_bw() 
+
+domoic_col
+
 ```
 
 ```{r NATALIE - Tab 3: Correlation plot}
