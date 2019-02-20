@@ -37,11 +37,17 @@ server <- function(input, output) {
    
    output$distPlot <- renderPlot({
       # generate bins based on input$bins from ui.R
-      x    <- clean_hab$chlorophyll 
+      x    <- clean_hab$month 
       bins <- seq(min(x), max(x), length.out = input$bins + 1)
       
       # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white')
+      barplot(x, breaks = bins, fill = 'darkgray', color = 'white')
+      barplot(x, as.integer(data$Population, data$Households),
+              main = input$YEAR,
+              ylab="Total",
+              xlab="Census Year",
+              names.arg = c("Population", "Households"),
+              col = color)
    })
 }
 

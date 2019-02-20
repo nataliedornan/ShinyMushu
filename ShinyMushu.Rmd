@@ -45,3 +45,15 @@ clean_hab <- HAB %>%
 
 ```
 
+```{r LAURA - Tab 2: HAB abundance chart}
+
+```
+
+```{r NATALIE - Tab 3: Correlation plot}
+
+```
+
+```{r SIDNEY - Tab 4: Interactive Map}
+
+```
+
