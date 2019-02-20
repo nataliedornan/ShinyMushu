@@ -21,14 +21,26 @@ library(stringr)
 
 ```{r data}
 
-HAB <- read_csv("HAB.csv") # Read in data: "Hamful Algal Blooms 2008-2019"
+HAB <- read_csv("HAB.csv") # Read in data: "Harmful Algal Blooms 2008-2019"
 
 # Clean up the data
 clean_hab <- HAB %>% 
   clean_names(., case = c("snake")) %>% # Convert to snake case
   select(year, month, day, latitude, longitude, location, akashiwo_sanguinea_cells_l, alexandrium_spp_cells_l, ammonia_u_m, chlorophyll_mg_m3, domoic_acid_ng_m_l, nitrate_u_m, nitrite_u_m, phosphate_u_m, pseudo_nitzschia_delicatissima_group_cells_l, pseudo_nitzschia_seriata_group_cells_l, silicate_u_m, water_temperature_c) %>% # Selected species that are correlated with HABs
   na.omit() %>% # Remove "NaNs" 
-  mutate(YearMonth = str_c(year, month, sep = "-")) #have one column of year and month of sample
+  rename(akashiwo = akashiwo_sanguinea_cells_l,
+         alexandrium = alexandrium_spp_cells_l,
+         ammonia = ammonia_u_m,
+         chlorophyll = chlorophyll_mg_m3,
+         domoic_acid = domoic_acid_ng_m_l,
+         nitrate = nitrate_u_m,
+         nitrite = nitrite_u_m,
+         phosphate = phosphate_u_m,
+         pseudo_nitzschia_delicatissima = pseudo_nitzschia_delicatissima_group_cells_l,
+         pseudo_nitzschia_seriata = pseudo_nitzschia_seriata_group_cells_l,
+         silicate = silicate_u_m,
+         water_temp = water_temperature_c) %>% # Rename variables
+  mutate(YearMonth = str_c(year, month, sep = "-")) # Create one column of year and month of sample together
 
 
 ```
