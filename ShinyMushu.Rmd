@@ -125,6 +125,19 @@ ggplot(hab_cor, aes(x = domoic_acid, y = chlorophyll)) +
                      "Intercept =",signif(domoic_lm$coef[[1]],5 ),
                      " Slope =",signif(domoic_lm$coef[[2]], 5),
                      " P =",signif(summary(domoic_lm)$coef[2,4], 5)))
+######
+
+d_n_lm <- lm(domoic_acid ~ n_n, data = hab_cor)
+
+summary(d_n_lm)
+
+ggplot(hab_cor, aes(x = n_n, y = domoic_acid)) +
+  geom_point() +  
+  stat_smooth(method = "lm", col = "red") +
+  labs(title = paste("Adj R2 = ",signif(summary(d_n_lm)$adj.r.squared, 5),
+                     "Intercept =",signif(d_n_lm$coef[[1]],5 ),
+                     " Slope =",signif(d_n_lm$coef[[2]], 5),
+                     " P =",signif(summary(d_n_lm)$coef[2,4], 5)))
 
 ```
 
