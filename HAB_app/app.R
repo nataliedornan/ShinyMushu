@@ -13,7 +13,7 @@ library(shiny)
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("Amount of Chrolophyll Found"),
    
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
@@ -37,7 +37,7 @@ server <- function(input, output) {
    
    output$distPlot <- renderPlot({
       # generate bins based on input$bins from ui.R
-      x    <- clean_hab[, 2] 
+      x    <- clean_hab$chlorophyll 
       bins <- seq(min(x), max(x), length.out = input$bins + 1)
       
       # draw the histogram with the specified number of bins
