@@ -48,6 +48,13 @@ server <- function(input, output) {
               xlab="Census Year",
               names.arg = c("Population", "Households"),
               col = color)
+      
+      chlorophyll_col <- ggplot(clean_hab, aes(x = month, y = chlorophyll)) +
+        geom_col(fill = "seagreen3", color = "seagreen") +
+        labs(x = "Month", y = "Chlorophyll Concentration (mg/L)") +
+        theme_bw() 
+      
+      chlorophyll_col
    })
 }
 
