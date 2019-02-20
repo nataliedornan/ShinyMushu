@@ -22,6 +22,8 @@ library(ggrepel)
 library(ggspatial)
 library(RColorBrewer)
 library(raster)
+library(rgdal)
+library(sp)
 
 ```
 
@@ -103,7 +105,13 @@ ca_counties <- read_sf(".", layer = "california_county_shape_file")
 #this time give the projection
 st_crs(ca_counties) = 4326
 
+str(clean_hab)
 
+hab_sp <- st_as_sf(clean_hab, coords = c("latitude", "longitude"))
+
+st_crs(hab_sp) = 4326
+
+plot(hab_sp)
 
 ```
 
