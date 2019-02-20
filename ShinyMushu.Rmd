@@ -177,7 +177,25 @@ hab_sp <- st_as_sf(clean_hab, coords = c("latitude", "longitude"))
 
 st_crs(hab_sp) = 4326
 
-plot(hab_sp)
+hab_ammonia <- hab_sp %>%
+  select(ammonia)
+
+ggplot(ca_counties) +
+  geom_sf(data = ca_counties, 
+          fill = "NA",
+          color = "gray30",
+          size = 0.1) +
+  geom_point(data = clean_hab,
+             aes(x = longitude, y = latitude),
+             size = 1,
+             color = "gray10",
+             alpha = 0.5) +
+  theme_minimal()+
+  coord_sf(datum = NA)
+
+plot(hab_ammonia)
+
+View(hab_sp)
 
 ```
 
