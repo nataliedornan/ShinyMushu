@@ -25,6 +25,8 @@ library(raster)
 library(rgdal)
 library(sp)
 
+select <- dplyr::select
+
 ```
 
 ```{r data}
@@ -48,7 +50,9 @@ clean_hab <- HAB %>%
          pseudo_nitzschia_seriata = pseudo_nitzschia_seriata_group_cells_l,
          silicate = silicate_u_m,
          water_temp = water_temperature_c) %>% # Rename variables
-  mutate(YearMonth = str_c(year, month, sep = "-")) # Create one column of year and month of sample together
+  mutate(year_month = str_c(year, month, sep = "-")) %>% # Create one column of year and month of sample together
+  mutate("n_n" = nitrate + nitrite) %>%
+  mutate(pseudo_nitzschia_spp = pseudo_nitzschia_delicatissima + pseudo_nitzschia_seriata)## sum N+N concentrations
 
 
 ```
@@ -69,10 +73,58 @@ domoic_col <- ggplot(clean_hab, aes(x = month, y = domoic_acid)) +
 
 domoic_col
 
+##laura was this across all years? really interesting stuff. Chl a is highest in May but domoic acid is highest in April! 
+
 ```
 
 ```{r NATALIE - Tab 3: Correlation plot}
 
+## Set the purpose: To create a friendly widget that will allow users to explore abiotic and biotic relationships relating to HAB occurence. ex)
+
+hab_cor <- clean_hab %>%
+  select(year_month, location, akashiwo, alexandrium, ammonia, chlorophyll, domoic_acid, n_n, phosphate, silicate,     water_temp)
+
+##model_name <- lm(y_variable ~ x_variable, data = df_name)
+
+temp_lm <- lm(chlorophyll ~ water_temp, data = hab_cor)
+
+summary(temp_lm)
+
+ggplot(hab_cor, aes(x = water_temp, y = chlorophyll)) +
+  geom_point() +  
+  stat_smooth(method = "lm", col = "red") +
+  labs(title = paste("Adj R2 = ",signif(summary(temp_lm)$adj.r.squared, 5),
+                     "Intercept =",signif(temp_lm$coef[[1]],5 ),
+                     " Slope =",signif(temp_lm$coef[[2]], 5),
+                     " P =",signif(summary(temp_lm)$coef[2,4], 5)))
+
+#####
+
+n_lm <- lm(chlorophyll ~ n_n, data = hab_cor)
+
+summary(n_lm)
+
+ggplot(hab_cor, aes(x = n_n, y = chlorophyll)) +
+  geom_point() +  
+  stat_smooth(method = "lm", col = "red") +
+  labs(title = paste("Adj R2 = ",signif(summary(n_lm)$adj.r.squared, 5),
+                     "Intercept =",signif(n_lm$coef[[1]],5 ),
+                     " Slope =",signif(n_lm$coef[[2]], 5),
+                     " P =",signif(summary(n_lm)$coef[2,4], 5)))
+
+######
+
+domoic_lm <- lm(chlorophyll ~ domoic_acid, data = hab_cor)
+
+summary(domoic_lm)
+
+ggplot(hab_cor, aes(x = domoic_acid, y = chlorophyll)) +
+  geom_point() +  
+  stat_smooth(method = "lm", col = "red") +
+  labs(title = paste("Adj R2 = ",signif(summary(domoic_lm)$adj.r.squared, 5),
+                     "Intercept =",signif(domoic_lm$coef[[1]],5 ),
+                     " Slope =",signif(domoic_lm$coef[[2]], 5),
+                     " P =",signif(summary(domoic_lm)$coef[2,4], 5)))
 
 ```
 
