@@ -25,6 +25,7 @@ library(raster)
 library(rgdal)
 library(sp)
 
+
 select <- dplyr::select
 
 ```
@@ -168,8 +169,25 @@ ggplot(hab_cor, aes(x = n_n, y = domoic_acid)) +
 #create a map of california 
 ca_counties <- read_sf(".", layer = "california_county_shape_file")
 
+View(ca_counties)
+
 #this time give the projection
 st_crs(ca_counties) = 4326
+
+bounds <- as(extent(-125.5, -116.5, 31.7, 37.4), 'SpatialPolygons')
+
+#make the bounds polygon have wgs84
+crs(bounds) <- crs(ca_counties)
+
+#look at sst in our bounds
+ca_crop <- gintersection(ca_counties, bounds, byid = TRUE)
+ca_crop <- crop(ca_counties, bounds)
+plot(ca_crop)
+
+coast_counties <- ca_counties %>%
+  dplyr::filter(NAME == c("San Luis Obispo", "Santa Barbara", "Ventura", "Los Angeles", "Orange", "San Diego"))
+
+plot(coast_counties)
 
 str(clean_hab)
 
@@ -177,12 +195,14 @@ hab_sp <- st_as_sf(clean_hab, coords = c("latitude", "longitude"))
 
 st_crs(hab_sp) = 4326
 
+
+
 hab_ammonia <- hab_sp %>%
   select(ammonia)
 
-ggplot(ca_counties) +
-  geom_sf(data = ca_counties, 
-          fill = "NA",
+ggplot(coast_counties) +
+  geom_sf(data = coast_counties, 
+          fill = "gray80",
           color = "gray30",
           size = 0.1) +
   geom_point(data = clean_hab,
