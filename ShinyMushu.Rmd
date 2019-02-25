@@ -15,15 +15,22 @@ library(tidyverse)
 library(janitor)
 library(lubridate)
 library(stringr)
-library(sf)
-library(tmap)
 library(leaflet)
 library(ggrepel)
 library(ggspatial)
 library(RColorBrewer)
-library(raster)
 library(rgdal)
+
+
+# Interactive Map
+library(sf)
+library(tmap)
 library(sp)
+library(spatstat)
+library(gstat)
+library(raster)
+library(maptools)
+library(rgeos)
 
 
 select <- dplyr::select
@@ -169,18 +176,22 @@ ggplot(hab_cor, aes(x = n_n, y = domoic_acid)) +
 #create a map of california 
 ca_counties <- read_sf(".", layer = "california_county_shape_file")
 
-View(ca_counties)
-
 #this time give the projection
 st_crs(ca_counties) = 4326
 
-bounds <- as(extent(-125.5, -116.5, 31.7, 37.4), 'SpatialPolygons')
+# Load raster package and an example SpatialPolygonsDataFrame
+data("ca_counties", package="maptools")
+
+# Crop to the desired extent, then plot
+bounds <- crop(ca_counties, extent(-125.5, -116.5, 31.7, 37.4))
 
 #make the bounds polygon have wgs84
 crs(bounds) <- crs(ca_counties)
 
+proj4string(bounds) <- CRS(proj4string(ca_counties))
+
 #look at sst in our bounds
-ca_crop <- gintersection(ca_counties, bounds, byid = TRUE)
+ca_crop <- gIntersection(ca_counties, bounds, byid = TRUE)
 ca_crop <- crop(ca_counties, bounds)
 plot(ca_crop)
 
@@ -218,4 +229,6 @@ plot(hab_ammonia)
 View(hab_sp)
 
 ```
+
+
 
