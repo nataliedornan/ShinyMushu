@@ -182,6 +182,9 @@ st_crs(ca_counties) = 4326
 # Load raster package and an example SpatialPolygonsDataFrame
 data("ca_counties", package="maptools")
 
+
+
+#This did NOT work... is it because the ca_counties df is a shapefile and not a raster?
 # Crop to the desired extent, then plot
 bounds <- crop(ca_counties, extent(-125.5, -116.5, 31.7, 37.4))
 
@@ -195,38 +198,54 @@ ca_crop <- gIntersection(ca_counties, bounds, byid = TRUE)
 ca_crop <- crop(ca_counties, bounds)
 plot(ca_crop)
 
+#example from lab 6, sort of works.. still trying to figure out how to post each data point
+sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"))
+#try sf map
+ggplot()+
+  geom_sf(data = coast_counties, fill = "gray80") +
+  geom_sf(data = sites_hab, aes(color = chlorophyll), size = 4) +
+  theme_minimal()
+
+
+#This worked, as well, sort of. Able to get a map of the six locations! 
 coast_counties <- ca_counties %>%
-  dplyr::filter(NAME == c("San Luis Obispo", "Santa Barbara", "Ventura", "Los Angeles", "Orange", "San Diego"))
+  filter(NAME %in% c("San Luis Obispo", "Santa Barbara", "Ventura", "Los Angeles", "Orange", "San Diego"))
 
 plot(coast_counties)
 
+
 str(clean_hab)
 
-hab_sp <- st_as_sf(clean_hab, coords = c("latitude", "longitude"))
-
-st_crs(hab_sp) = 4326
 
 
-
-hab_ammonia <- hab_sp %>%
-  select(ammonia)
-
+#map of the locations of the different sites
 ggplot(coast_counties) +
   geom_sf(data = coast_counties, 
-          fill = "gray80",
+          fill = "NA",
           color = "gray30",
           size = 0.1) +
+  coord_sf(xlim = c(-118, 125), ylim = c(31, 36)) +
   geom_point(data = clean_hab,
              aes(x = longitude, y = latitude),
-             size = 1,
+             size = 3,
              color = "gray10",
              alpha = 0.5) +
   theme_minimal()+
   coord_sf(datum = NA)
 
-plot(hab_ammonia)
 
-View(hab_sp)
+#now going to try to make it interactive
+map_ca_hab <- tm_shape(coast_counties) +
+  tm_fill("COUNTY", palette = "RdPu", alpha = 0.5)+
+  tm_shape(ca_counties) +
+  tm_borders()
+
+tmap_mode("view")
+#basemaps in leaflet::providers
+
+map_ca_hab
+
+
 
 ```
 
