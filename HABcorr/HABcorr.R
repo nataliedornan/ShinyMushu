@@ -9,20 +9,47 @@
 
 library(shiny)
 
+## to make Input dropdown 
+
+
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("HAB Correlation Plots"),
    
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-         sliderInput("bins",
-                     "Number of bins:",
-                     min = 1,
-                     max = 50,
-                     value = 30)
+        
+        ##create select box with locations
+        
+        selectInput("select", label = h3("Select box"), 
+                    choices = list("All" = 1, "Cal Poly Pier" = 2, "Goleta Pier" = 3, "Stearn's Wharf" = 4, "Santa Monica Pier" = 5, "Newport Pier" = 6, "Scripps Pier" = 7), 
+                    selected = 1),
+        
+        hr(),
+        fluidRow(column(7, verbatimTextOutput("Location"))),
+      
+        ##create group checkbox for x variables
+      
+      checkboxGroupInput("checkGroup", label = h3("x variables"), 
+                         choices = list("Akashiwo sp." = 1, "Alexandrium spp." = 2, "Ammonia" = 3, "Chlorophyll" = 4, "Domoic Acid" = 5, "N+N" = 6, "Phosphate" = 7, "Silicate" = 8, "Water Temp" = 9),
+                         selected = 1),
+      
+      hr(),
+      fluidRow(column(9, verbatimTextOutput("Variable"))),
+   
+      ##create group checkbox for y variables     
+      
+      checkboxGroupInput("checkGroup", label = h3("y variables"), 
+                         choices = list("Akashiwo sp." = 1, "Alexandrium spp." = 2, "Ammonia" = 3, "Chlorophyll" = 4, "Domoic Acid" = 5, "N+N" = 6, "Phosphate" = 7, "Silicate" = 8, "Water Temp" = 9),
+                         selected = 1),
+      
+      hr(),
+      fluidRow(column(9, verbatimTextOutput("Variable")))
+         
       ),
       
       # Show a plot of the generated distribution
@@ -32,19 +59,26 @@ ui <- fluidPage(
    )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic required for lm
 server <- function(input, output) {
    
-   output$distPlot <- renderPlot({
-      # generate bins based on input$bins from ui.R
-      x    <- faithful[, 2] 
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  output$plot <- renderPlot({
+
+    g <- ggplot(hab_cor, aes(water_temp, chlorophyll)) + geom_point()
+    
+    g <- g + geom_smooth(method = "lm", col = "red") 
+    
+    g <- g + labs(title = paste("Adj R2 = ",signif(summary(temp_lm)$adj.r.squared, 5),
+                         "Intercept =",signif(temp_lm$coef[[1]],5 ),
+                         " Slope =",signif(temp_lm$coef[[2]], 5),
+                         " P =",signif(summary(temp_lm)$coef[2,4], 5)))
       
-      # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white')
-   })
+    
+  })
+  
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
 
