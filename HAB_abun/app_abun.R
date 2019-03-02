@@ -13,17 +13,23 @@ library(shiny)
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Amount of Chrolophyll Found"),
+   titlePanel("HAB Abundance"),
    
-   # Sidebar with a slider input for number of bins 
-   sidebarLayout(
+   # Sidebar with a select input for monitoring locations 
+   sidebarLayout(position = "right",
       sidebarPanel(
-         sliderInput("bins",
-                     "Number of bins:",
-                     min = 1,
-                     max = 50,
-                     value = 30)
+         selectInput("select",
+                     label = h4("Monitoring Locations"),
+                     choices = list("Cal Poly Pier" = 1, "Goleta Pier" = 2, "Stearns Wharf" = 3, "Santa Monica Pier" = 4, "Newport Pier" = 5, "Scripps Pier" = 6),
+                     selected = 1),
+         
+         selectInput("select",
+                     label = h4("Year"),
+                     choices = list("2008" = 1, "2009" = 2, "2010" = 3, "2011" = 4, "2012" = 5, "2013" = 6, "2014" = 7, "2015" = 8, "2016" = 9, "2017" = 10, "2018" = 11),
+                     selected = 1)
+         
       ),
+        
       
       # Show a plot of the generated distribution
       mainPanel(
@@ -36,18 +42,6 @@ ui <- fluidPage(
 server <- function(input, output) {
    
    output$distPlot <- renderPlot({
-      # generate bins based on input$bins from ui.R
-      x    <- clean_hab$month 
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
-      
-      # draw the histogram with the specified number of bins
-      barplot(x, breaks = bins, fill = 'darkgray', color = 'white')
-      barplot(x, as.integer(data$Population, data$Households),
-              main = input$YEAR,
-              ylab="Total",
-              xlab="Census Year",
-              names.arg = c("Population", "Households"),
-              col = color)
       
       chlorophyll_col <- ggplot(clean_hab, aes(x = month, y = chlorophyll)) +
         geom_col(fill = "seagreen3", color = "seagreen") +
