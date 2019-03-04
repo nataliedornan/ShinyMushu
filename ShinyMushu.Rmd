@@ -188,7 +188,7 @@ plot(coast_counties)
 
 
 #example from lab 6, sort of works.. still trying to figure out how to post each data point
-sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"))
+sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude")) 
 #try sf map
 ggplot()+
   geom_sf(data = coast_counties, fill = "gray80") +
