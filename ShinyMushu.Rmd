@@ -44,7 +44,7 @@ HAB <- read_csv("HAB.csv") # Read in data: "Harmful Algal Blooms 2008-2019"
 # Clean up the data
 clean_hab <- HAB %>% 
   clean_names(., case = c("snake")) %>% # Convert to snake case
-  select(year, month, day, latitude, longitude, location, akashiwo_sanguinea_cells_l, alexandrium_spp_cells_l, ammonia_u_m, chlorophyll_mg_m3, domoic_acid_ng_m_l, nitrate_u_m, nitrite_u_m, phosphate_u_m, pseudo_nitzschia_delicatissima_group_cells_l, pseudo_nitzschia_seriata_group_cells_l, silicate_u_m, water_temperature_c) %>% # Selected species that are correlated with HABs
+  dplyr::select(year, month, day, latitude, longitude, location, akashiwo_sanguinea_cells_l, alexandrium_spp_cells_l, ammonia_u_m, chlorophyll_mg_m3, domoic_acid_ng_m_l, nitrate_u_m, nitrite_u_m, phosphate_u_m, pseudo_nitzschia_delicatissima_group_cells_l, pseudo_nitzschia_seriata_group_cells_l, silicate_u_m, water_temperature_c) %>% # Selected species that are correlated with HABs
   na.omit() %>% # Remove "NaNs" 
   rename(akashiwo = akashiwo_sanguinea_cells_l,
          alexandrium = alexandrium_spp_cells_l,
@@ -62,6 +62,9 @@ clean_hab <- HAB %>%
   mutate("n_n" = nitrate + nitrite) %>%
   mutate(pseudo_nitzschia_spp = pseudo_nitzschia_delicatissima + pseudo_nitzschia_seriata)## sum N+N concentrations
 
+##create csv file of clean_hab df
+
+write.csv(clean_hab, "clean_hab.csv")
 
 ```
 
