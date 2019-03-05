@@ -8,11 +8,11 @@
 #
 
 library(shiny)
+library(tidyverse)
 
 
 
-
-# Define UI for application that draws a histogram
+# Define UI for application 
 ui <- fluidPage(
    
    # Application title
@@ -21,11 +21,19 @@ ui <- fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-         sliderInput("year",
-                     "Year:",
-                     min = 2008,
-                     max = 2018,
-                     value = 1),
+        radioButtons("year", 
+                     label = "Year:",
+                     choices = list("2008" = 1,
+                                    "2009" = 2,
+                                    "2010" = 3,
+                                    "2011" = 4,
+                                    "2012" = 5,
+                                    "2013" = 6,
+                                    "2014" = 7,
+                                    "2015" = 8,
+                                    "2016" = 9,
+                                    "2018" = 10), 
+                     selected = 1), 
          sliderInput("month",
                      "Month:",
                      min = 1,
@@ -42,7 +50,7 @@ ui <- fluidPage(
                                  "nitrate" = 6,
                                  "phosphate" = 7,
                                  "pseudo nitzschia delicatissima" = 8 ,
-                                 "pseudo_nitzschia_seriata" = 9 ,
+                                 "pseudo nitzschia seriata" = 9 ,
                                  "silicate" = 10 ,
                                  "water temp" = 11),
                      selected = 1)
@@ -58,39 +66,31 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
+  
+  
   output$HABMap <- renderPlot({
     
     
-    
-    data <- switch(input$variable, 
-                   "akashiwo" = sites_hab$akashiwo,
-                   "alexandrium" = sites_hab$alexandrium,
-                   "ammonia" = sites_hab$ammonia,
-                   "chlorophyll" = sites_hab$chlorophyll,
-                   "domoic acid" = sites_hab$domoic,
-                   "nitrate" = sites_hab$nitrate,
-                   "phosphate" = sites_hab$phosphate,
-                   "pseudo nitzschia delicatissima" = sites_hab$pseudo_nitzschia_delicatissima,
-                   "pseudo_nitzschia_seriata" = sites_hab$pseudo_nitzschia_seriata,
-                   "silicate" = sites_hab$silicate,
-                   "water temp" = sites_hab$water_temp)
-    
-    color <- switch(input$variable, 
-                    "akashiwo" = "darkgreen",
-                    "alexandrium" = "black",
-                    "ammonia" = "darkorange",
-                    "chlorophyll" = "darkviolet",
-                    "domoic acid" = "lightpink",
-                    "nitrate" = "lightcyan",
-                    "phosphate" = "indiared1",
-                    "pseudo nitzschia delicatissima" = "magenta",
-                    "pseudo_nitzschia_seriata" = "powderblue",
-                    "silicate" = "yellow",
-                    "water temp" = "royalblue")
-    
-    percent_map(data, color, input$range[1], input$range[2])
-    
+    ggplot(coast_counties) +
+      geom_sf(data = coast_counties, 
+              fill = "NA",
+              color = "gray30",
+              size = 0.1) +
+      coord_sf(xlim = c(-118, 125), ylim = c(31, 36)) +
+      geom_point(data = clean_hab,
+                 aes(x = longitude, y = latitude),
+                 size = 3,
+                 color = "gray10",
+                 alpha = 0.5) +
+      theme_minimal()+
+      coord_sf(datum = NA) 
   })
+  
+  output$value <- renderPlot({ input$year })
+  
+  output$value <- renderPrint({ input$month })
+  
+  output$value <- renderPrint({ input$variable })
   
   
   

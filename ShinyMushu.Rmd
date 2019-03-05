@@ -212,9 +212,10 @@ ggplot(coast_counties) +
           size = 0.1) +
   coord_sf(xlim = c(-118, 125), ylim = c(31, 36)) +
   geom_point(data = clean_hab,
-             aes(x = longitude, y = latitude),
-             size = 3,
+             aes( x = longitude,
+               y = latitude),
              color = "gray10",
+             size = 3, 
              alpha = 0.5) +
   theme_minimal()+
   coord_sf(datum = NA)
