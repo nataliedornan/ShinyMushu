@@ -7,6 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 
+library(tidyverse)
 library(shiny)
 library(shinythemes)
 
@@ -16,35 +17,41 @@ library(shinythemes)
 # in the widgets (in the ui), need to call them 
 # in the server, you create a new reaction that will call "input$location" from the ui
 
-write.csv(clean_hab, "clean_hab.csv") # Read in the clean_hab data frame
+# use read.csv?
 
-variables <- clean_hab %>% 
-  dplyr::select(year,
-                location,
-                akashiwo,
-                alexandrium,
-                ammonia,
-                chlorophyll,
-                domoic_acid,
-                phosphate,
-                silicate,
-                water_temp,
-                n_n,
-                pseudo_nitzschia_spp)
+HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
-# Allows me to call this in the widget without listing it out
-year <- unique(variables$year)
-location <- unique(variables$location)
-akashiwo <- unique(variables$akashiwo)
-alexandrium <- unique(variables$alexandrium)
-ammonia <- unique(variables$ammonia)
-chlorophyll <- unique(variables$chlorophyll)
-domoic_acid <- unique(variables$domoic_acid)
-phosphate <- unique(variables$phosphate)
-silicate <- unique(variables$silicate) 
-water_temp <- unique(variables$water_temp)
-n_n <- unique(variables$n_n)
-pseudo_nitzschia_spp <- unique(variables$pseudo_nitzschia_spp)
+
+
+# variables <- clean_hab %>% 
+#   dplyr::select(year,
+#                 month,
+#                 location,
+#                 akashiwo,
+#                 alexandrium,
+#                 ammonia,
+#                 chlorophyll,
+#                 domoic_acid,
+#                 phosphate,
+#                 silicate,
+#                 water_temp,
+#                 n_n,
+#                 pseudo_nitzschia_spp)
+
+
+# # Allows me to call this in the widget without listing it out
+# year <- unique(variables$year)
+# location <- unique(variables$location)
+# akashiwo <- unique(variables$akashiwo)
+# alexandrium <- unique(variables$alexandrium)
+# ammonia <- unique(variables$ammonia)
+# chlorophyll <- unique(variables$chlorophyll)
+# domoic_acid <- unique(variables$domoic_acid)
+# phosphate <- unique(variables$phosphate)
+# silicate <- unique(variables$silicate) 
+# water_temp <- unique(variables$water_temp)
+# n_n <- unique(variables$n_n)
+# pseudo_nitzschia_spp <- unique(variables$pseudo_nitzschia_spp)
 
 # Define UI for application that has tabs (navbarPage function)
                 # Apply a shinytheme
@@ -85,21 +92,18 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                # Create select widget for monitoring locations
                                selectInput("selectlocation_abun",
                                            label = h4("Monitoring Location"),
-                                           choices = location,
-                                             
-                                             
-                                             #list("Cal Poly Pier" = ,
-                                                         # "Goleta Pier", 
-                                                          #"Stearns Wharf",
-                                                          #"Santa Monica Pier",
-                                                          #"Newport Pier",
-                                                          #"Scripps Pier"), 
+                                           choices = list("Cal Poly Pier" = "Cal Poly Pier", 
+                                                          "Goleta Pier" = "Goleta Pier", 
+                                                          "Stearns Wharf" = "Stearns Wharf", 
+                                                          "Santa Monica Pier" = "Santa Monica Pier", 
+                                                          "Newport Pier" = "Newport Pier", 
+                                                          "Scripps Pier" = "Scripps Pier"),
                                            selected = 1),
                                
                                # Create select widget for year
                                selectInput("selectyear_abun",
                                            label = h4("Year"),
-                                           choices = year, 
+                                           choices = c(2008:2018), 
                                            selected = 1),
                                
                                # Create select widget for variable
@@ -147,12 +151,15 @@ tabPanel(title = "Interactive Map")
 # Define server logic required for each tab
 server <- function(input, output) {
   
+  
   # Create reactive function to isolate reactions related to the HAB abundance chart
   abun_data <- reactive({
-    clean_hab %>%
-      filter(location == input$selectlocation_abun) %>%
-      filter(year == input$selectyear_abun) %>%
-      select(input$selectvar_abun)
+   
+    
+    # clean_hab %>%
+     # filter(location == input$selectlocation_abun) %>%
+    #  filter(year == input$selectyear_abun) %>%
+     # select(input$selectvar_abun)
     # function(input$selectlocation_abun)
     # if(input$location == "Stearns Wharf")
     
@@ -171,15 +178,35 @@ server <- function(input, output) {
   # Send HAB abundance chart to the ui as "abunPlot"
    output$abunPlot <- renderPlot({
      
-     filtered <- variables %>%
-       filter(location %in% input$location) %>% 
-       filter(year == input$year) %>% 
-       filter()
+     # use print to troubleshoot
+    # print(class(input$variable))
      
-     ggplot(filtered, aes(x = location, y = year)) +
-       geom_col()
+     filtered <- HAB %>%
+       filter(location == input$selectlocation_abun,
+              year == input$selectyear_abun) %>%
+       select(month,
+              akashiwo, 
+              alexandrium, 
+              ammonia, 
+              chlorophyll, 
+              domoic_acid, 
+              n_n, 
+              phosphate,
+              pseudo_nitzschia_spp,
+              silicate, 
+              water_temp)
+     
+     View(filtered)
+     
+     # maybe don't allow to select by year, still show month by variable but do facet_wrap and show all the months
+     # compare seasonality of these species across all years
+     
+     ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
+       geom_col(fill = "seagreen3", color = "seagreen") +
+       labs(x = "Month", y = "Variable") +
+       theme_bw()
       
-     # need location (selectlocation_abun), then year (selectyear_abun), then variable (selectvar_abun)
+     # need location (selectlocation_abun), then year (selectyear_abun), then variable (selectvar_abun) (with all months in the year)
      
 # ggplot() +
  #       geom_col(clean_hab, aes(x = input$year, y = input$selectvar_abun)fill = "seagreen3", color = "seagreen") +
