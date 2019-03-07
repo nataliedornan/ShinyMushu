@@ -181,10 +181,25 @@ server <- function(input, output) {
      # use print to troubleshoot
     # print(class(input$variable))
      
+     # filtered <- HAB %>%
+     #   filter(location == input$selectlocation_abun,
+     #          year == input$selectyear_abun) %>%
+     #   select(month,
+     #          akashiwo, 
+     #          alexandrium, 
+     #          ammonia, 
+     #          chlorophyll, 
+     #          domoic_acid, 
+     #          n_n, 
+     #          phosphate,
+     #          pseudo_nitzschia_spp,
+     #          silicate, 
+     #          water_temp)
+     
      filtered <- HAB %>%
-       filter(location == input$selectlocation_abun,
-              year == input$selectyear_abun) %>%
-       select(month,
+       filter(location == input$selectlocation_abun) %>%
+       select(year,
+              month,
               akashiwo, 
               alexandrium, 
               ammonia, 
@@ -203,6 +218,7 @@ server <- function(input, output) {
      
      ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
        geom_col(fill = "seagreen3", color = "seagreen") +
+       facet_wrap(~year, scale = "free") +
        labs(x = "Month", y = "Variable") +
        theme_bw()
       
