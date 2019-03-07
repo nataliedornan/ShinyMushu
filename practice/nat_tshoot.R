@@ -1,7 +1,7 @@
 library(shiny)
 library(tidyverse)
 
-hab_new <- read_csv("hab_new.csv")
+HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
 ## to make Input dropdown 
 
@@ -30,30 +30,30 @@ ui <- fluidPage(
  
            
       radioButtons(inputId = "yvar", label = h3("Dependent Variables"), 
-                         choices = list("Akashiwo sp." = "Akashiwo sp.", 
-                                        "Alexandrium spp." = "Alexandrium spp.", 
-                                        "Ammonia" = "Ammonia", 
-                                        "Chlorophyll" = "Chlorophyll", 
-                                        "Domoic Acid" = "Domoic Acid", 
-                                        "N+N" = "N+N", 
-                                        "Phosphate" = "Phosphate", 
-                                        "Silicate" = "Silicate", 
-                                        "Water Temp" = "Water Temp"),
-                         selected = "Akashiwo sp."),
+                         choices = list("Akashiwo sp." = "akashiwo", 
+                                        "Alexandrium spp." = "alexandrium", 
+                                        "Ammonia" = "ammonia", 
+                                        "Chlorophyll" = "chlorophyll", 
+                                        "Domoic Acid" = "domoic_acid", 
+                                        "N+N" = "n_n", 
+                                        "Phosphate" = "phosphate", 
+                                        "Silicate" = "silicate", 
+                                        "Water Temp" = "water_temp"),
+                         selected = "alexandrium"),
       
       ##create group checkbox for y variables     
       
       radioButtons(inputId = "xvar", label = h3("Independent Variables"), 
-                         choices = list("Akashiwo sp." = "Akashiwo sp.", 
-                                        "Alexandrium spp." = "Alexandrium spp.", 
-                                        "Ammonia" = "Ammonia", 
-                                        "Chlorophyll" = "Chlorophyll", 
-                                        "Domoic Acid" = "Domoic Acid", 
-                                        "N+N" = "N+N", 
-                                        "Phosphate" = "Phosphate", 
-                                        "Silicate" = "Silicate", 
-                                        "Water Temp" = "Water Temp"),
-                         selected = "Akashiwo sp.")
+                         choices = list("Akashiwo sp." = "akashiwo", 
+                                        "Alexandrium spp." = "alexandrium", 
+                                        "Ammonia" = "ammonia", 
+                                        "Chlorophyll" = "chlorophyll", 
+                                        "Domoic Acid" = "domoic_acid", 
+                                        "N+N" = "n_n", 
+                                        "Phosphate" = "phosphate", 
+                                        "Silicate" = "silicate", 
+                                        "Water Temp" = "water_temp"),
+                         selected = "akashiwo")
       
     ),
     
@@ -75,15 +75,17 @@ ui <- fluidPage(
 server <- function(input, output) {
   mydat <- reactive({
   HAB %>%
-      filter(location == input$location)  %>%
-      select(input$xvar, input$xvar)
+      filter(location == input$location)
   })
       
-output$scatter <- renderPlot({
-ggplot() +
-  geom_point(data = mydat(), aes(x = input$xvar, y = input$yvar))
-})
+  output$scatter <- renderPlot({
+    
+    ggplot() +
+      geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar))
+  })
 }
+
+##add checkbox input where it logs y axis
 
 # Run the application 
 shinyApp(ui = ui, server = server)

@@ -127,14 +127,14 @@ server <- function(input, output) {
       return()
     
 
-    res <<- input$yvar
+    res <- input$yvar
     
     # Make sure yvar is correct for data set (when data set changes, the
     # yvar will initially be for the previous data set)
     if (is.null(input$xvar) || !(input$xvar %in% names(dat)))
       return()
     
-    regr <<- input$xvar
+    regr <- input$xvar
     #     print(regr)
     
     data.maker(data=dat, y=res, x=regr)
