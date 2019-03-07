@@ -1,7 +1,7 @@
 library(shiny)
 library(tidyverse)
 
-HAB <- read_csv("clean_hab.csv") %>%
+hab_new <- read_csv("clean_hab.csv") %>%
   rename("Akashiwo sp." = akashiwo,
          "Alexandrium spp." = alexandrium ,
          "Ammonia" = ammonia,
@@ -12,6 +12,8 @@ HAB <- read_csv("clean_hab.csv") %>%
          "N+N" = n_n,
          "Silicate" = silicate,
          "Water Temp" = water_temp) # Rename variables
+
+write.csv(hab_new, "hab_new.csv")
 
 ## to make Input dropdown 
 
@@ -30,7 +32,7 @@ ui <- fluidPage(
       selectInput(inputId = "location", label = h3("Station Name"), 
                   choices = list("Cal Poly Pier", 
                                  "Goleta Pier", 
-                                 "Stearns Wharf", 
+                                  "Stearns Wharf", 
                                  "Santa Monica Pier", 
                                  "Newport Pier", 
                                  "Scripps Pier"), 
@@ -39,7 +41,7 @@ ui <- fluidPage(
       ##create group checkbox for x variables
  
            
-      radioButtons(inputId = "DepVar", label = h3("Dependent Variables"), 
+      radioButtons(inputId = "yvar", label = h3("Dependent Variables"), 
                          choices = list("Akashiwo sp.", 
                                         "Alexandrium spp.", 
                                         "Ammonia", 
@@ -53,7 +55,7 @@ ui <- fluidPage(
       
       ##create group checkbox for y variables     
       
-      radioButtons(inputId = "IndVar", label = h3("Independent Variables"), 
+      radioButtons(inputId = "xvar", label = h3("Independent Variables"), 
                          choices = list("Akashiwo sp.", 
                                         "Alexandrium spp.", 
                                         "Ammonia", 
@@ -83,14 +85,14 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   mydat <- reactive({
-    HAB %>%
-      filter(location == input$location) %>%
-      select(input$IndVar, input$DepVar)
+  HAB %>%
+      filter(location == input$location)  %>%
+      select(input$xvar, input$xvar)
   })
-
+      
 output$scatter <- renderPlot({
 ggplot() +
-  geom_point(data = mydata(), aes(x = input$IndVar, y = input$DepVar))
+  geom_point(data = mydat(), aes(x = input$xvar, y = input$yvar))
 })
 }
 
