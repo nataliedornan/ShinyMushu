@@ -196,7 +196,8 @@ sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"))
 ggplot()+
   geom_sf(data = coast_counties, fill = "gray80") +
   geom_sf(data = sites_hab, aes(color = chlorophyll), size = 4) +
-  theme_minimal()
+  theme_minimal()+
+  coord_sf(datum = NA)
 
 
 
@@ -214,6 +215,7 @@ ggplot(coast_counties) +
   geom_point(data = clean_hab,
              aes( x = longitude,
                y = latitude),
+             fill = chlorophyll,
              color = "gray10",
              size = 3, 
              alpha = 0.5) +
@@ -222,10 +224,10 @@ ggplot(coast_counties) +
 
 
 #now going to try to make it interactive
-map_ca_hab <- tm_shape(coast_counties) +
-  tm_fill("COUNTY", palette = "RdPu", alpha = 0.5)+
-  tm_shape(ca_counties) +
-  tm_borders()
+map_ca_hab <- tm_shape(sites_hab) +
+  tm_bubbles(size = "chlorophyll")+
+ tm_shape(coast_counties) +
+  tm_fill("COUNTY", palette = "RdPu", alpha = 0.5, legend.show = FALSE)
 
 tmap_mode("view")
 #basemaps in leaflet::providers
