@@ -10,7 +10,7 @@
 library(shiny)
 library(tidyverse)
 
-corrHAB <- read.csv("clean_hab.csv", stringsAsFactors = F) 
+HAB <- read.csv("clean_hab.csv", stringsAsFactors = F) 
 
 ## to make Input dropdown 
 

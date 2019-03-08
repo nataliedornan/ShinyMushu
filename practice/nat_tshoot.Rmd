@@ -10,6 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+
+install.packages("tidyverse", dependencies=TRUE)
+install.packages("backports", dependencies=TRUE)
+install.packages("colorspace", dependencies=TRUE)
+
 library(tidyverse)
 library(janitor)
 library(lubridate)
