@@ -12,7 +12,8 @@ library(tidyverse)
 library(RColorBrewer)
 library(maps)
 library(mapproj)
-HAB <- read_csv("HAB.csv") 
+library(leaflet)
+HAB <- read.csv("HAB.csv") 
 
 clean_hab <- HAB %>% 
   clean_names(., case = c("snake")) %>% # Convert to snake case
@@ -52,10 +53,11 @@ coast_counties <- ca_counties %>%
 
 
 #example from lab 6, sort of works.. still trying to figure out how to post each data point
+
+
 sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"))
 
 
-str(clean_hab)
 
 
 # Define UI for application 
@@ -88,18 +90,17 @@ ui <- fluidPage(
           
          selectInput("variable",
                      label = "Choose a HAB Variable:",
-                     choices = c("Akashiwo" = "akashiwo" ,
-                                 "Alexandrium" = "alexandrium",
-                                 "Ammonia" = "ammonia" ,
-                                 "Chlorophyll" = "chlorophyll",
-                                 "Domoic Acid" = "domoic_acid",
-                                 "Nitrate" = "nitrate",
+                     choices = list("Akashiwo sp." = "akashiwo", 
+                                 "Alexandrium spp." = "alexandrium", 
+                                 "Ammonia" = "ammonia", 
+                                 "Chlorophyll" = "chlorophyll", 
+                                 "Domoic Acid" = "domoic_acid", 
+                                 "N+N" = "n_n", 
                                  "Phosphate" = "phosphate",
-                                 "Pseudo Nitzschia Delicatissima" = "pseudo_nitzschia_delicatissima" ,
-                                 "Pseudo Nitzschia Seriata" = "pseudo_nitzschia_seriata" ,
-                                 "Silicate" = "silicate" ,
-                                 "Water Temperature" = "water_temp"),
-                     selected = "Akashiwo")
+                                 "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp",
+                                 "Silicate" = "silicate", 
+                                 "Water Temp" = "water_temp"),
+                     selected = 1)
       ),
       
       # Show a plot of the generated distribution
@@ -118,43 +119,77 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  #create new df for filtering input$year, input$month, and select the variables we want, 
-
   
+  
+  
+  #create new df for filtering input$year, input$month, and select the variables we want,
+  new_hab <- reactive({
+
+    
+    sites_hab %>%
+      
+      filter(year == input$year & 
+               month == input$month) %>%
+      select( input$variable) %>%
+      group_by(input$month)
+    
+    
+    
+    # akashiwo, 
+    # alexandrium, 
+    # ammonia, 
+    # chlorophyll, 
+    # domoic_acid,
+    # n_n,
+    # phosphate,
+    # pseudo_nitzschia_spp,
+    # silicate, 
+    # water_temp
+    
+    
+    
+
+
+  })
     
     output$Map <- renderPlot({
-      data <- switch(input$variable, 
-                     "Akashiwo" = clean_hab$akashiwo ,
-                     "Alexandrium" = clean_hab$alexandrium,
-                     "Ammonia" = clean_hab$ammonia ,
-                     "Chlorophyll" = clean_hab$chlorophyll,
-                     "Domoic Acid" = clean_hab$domoic_acid,
-                     "Nitrate" = clean_hab$nitrate,
-                     "Phosphate" = clean_hab$phosphate,
-                     "Pseudo Nitzschia Delicatissima" = clean_hab$pseudo_nitzschia_delicatissima ,
-                     "Pseudo Nitzschia Seriata" = clean_hab$pseudo_nitzschia_seriata,
-                     "Silicate" = clean_hab$silicate ,
-                     "Water Temperature" = clean_hab$water_temp)
+    
       
-      color <- switch(input$variable, 
-                      "Akashiwo" = "red" ,
-                      "Alexandrium" = "blue",
-                      "Ammonia" = "purple" ,
+      color <- switch(input$variable,
+                      
+                      "Akashiwo sp." = "red",
+                      "Alexandrium spp." = "blue",
+                      "Ammonia" = "purple",
                       "Chlorophyll" = "green",
                       "Domoic Acid" = "yellow",
-                      "Nitrate" = "cyan",
+                      "N+N" = "cyan",
                       "Phosphate" = "maroon",
-                      "Pseudo Nitzschia Delicatissima" = "hotpink" ,
-                      "Pseudo Nitzschia Seriata" = "darkolivegreen" ,
-                      "Silicate" = "darkseagreen" ,
-                      "Water Temperature" = "coral")
+                      "Pseudo Nitzschia spp." = "darkolivegreen",
+                      "Silicate" = "darkseagreen",
+                      "Water Temp" = "coral"
+                      
+      )
       
       
+      # ggplot()+
+      #   geom_sf(data = coast_counties, fill = "white") +
+      #   geom_sf(data = new_hab(), aes_string(fill = input$variable), size = 4) +
+      #   scale_color_manual(values = color) +
+      #   theme_classic() +
+      #   coord_sf(datum = NA)
       
-      ggplot(data, color)+
-        geom_sf(data = coast_counties, fill = "gray80") +
-        geom_sf(data = data, aes(fill = color), size = 4) +
-        theme_minimal()
+      map_ca_hab <- tm_shape(sites_hab) +
+        tm_bubbles(size = input$variable, col = color)+
+        tm_shape(coast_counties) +
+        tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+
+      tmap_mode("view")
+      #basemaps in leaflet::providers
+      
+      map_ca_hab
+     
+      
+     
     })
     
     
