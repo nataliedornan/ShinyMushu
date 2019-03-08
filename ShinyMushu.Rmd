@@ -154,26 +154,6 @@ ggplot(hab_cor, aes(x = n_n, y = domoic_acid)) +
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```{r SIDNEY - Tab 4: Interactive Map}
 
 #create a map of california 

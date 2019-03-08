@@ -37,7 +37,20 @@ select <- dplyr::select
 
 ```{r, troubleshoot server}
 
-HAB <- read.csv("clean_hab.csv")
+corrHAB <- read.csv("clean_hab.csv")%>%
+  select("location",
+    "akashiwo", 
+        "alexandrium", 
+        "ammonia", 
+        "chlorophyll", 
+        "domoic_acid", 
+        "n_n", 
+        "phosphate", 
+        "silicate", 
+        "pseudo_nitzschia_spp",
+        "water_temp")
+
+write.csv(corrHAB, "corrHAB.csv")
 
 ```
 
