@@ -3,7 +3,7 @@ library(tidyverse)
 library(data.table)
 library(ggplot2)
 
-HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
+HAB <- read.csv("clean_hab.csv", stringsAsFactors = F) 
 
 ## to make Input dropdown 
 
@@ -39,7 +39,8 @@ ui <- fluidPage(
                                         "Domoic Acid" = "domoic_acid", 
                                         "N+N" = "n_n", 
                                         "Phosphate" = "phosphate", 
-                                        "Silicate" = "silicate", 
+                                        "Silicate" = "silicate",
+                                        "Pseudo Nitzsia Spp." = "pseudo_nitzschia_spp",
                                         "Water Temp" = "water_temp"),
                          selected = "chlorophyll"),
   
@@ -54,7 +55,8 @@ ui <- fluidPage(
                                         "Chlorophyll" = "chlorophyll", 
                                         "Domoic Acid" = "domoic_acid", 
                                         "N+N" = "n_n", 
-                                        "Phosphate" = "phosphate", 
+                                        "Phosphate" = "phosphate",
+                                        "Pseudo Nitzsia Spp." = "pseudo_nitzschia_spp",
                                         "Silicate" = "silicate", 
                                         "Water Temp" = "water_temp"),
                          selected = "akashiwo")
@@ -66,10 +68,8 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("Application",  
-                 plotOutput("scatter")#,
-           #      tableOutput("lmStats"),
-           #      tableOutput("lmResults"),
-#                 tableOutput("values")
+                 plotOutput("scatter"),
+                 tableOutput("values")
            ))
     )
   )
@@ -85,38 +85,32 @@ server <- function(input, output) {
       filter(location == input$location) 
   })
   
+  #output$logy <- reactive({
+  #  log <- ln(input$var)
+  #})
   
-  
- # lm1 <- reactive({lm(input$yvar ~ input$xvar, data = mydat())})
 
+  output$values <- renderTable({
+    mydat()
+  })
+  
+  lm1 <- reactive({
+    lm(HAB[,names(HAB) %in% input$yvar] ~ HAB[,names(HAB) %in% input$xvar])
+       })  
+  
   output$scatter <- renderPlot({
-    
-#    ggplotRegression <- function (fit) {
- #     
-  #    require(ggplot2)
-      
-#      ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
- #       geom_point() +
-  #      stat_smooth(method = "lm", col = "red") +
-   #     labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-    #                       "Intercept =",signif(fit$coef[[1]],5 ),
-     #                      " Slope =",signif(fit$coef[[2]], 5),
-      #                     " P =",signif(summary(fit)$coef[2,4], 5)))
-    #}
-    
-  #  fit1 <- reactive({lm(reformulate(input$yvar ~ input$xvar), data = mydat())})  
-    
-    
-   # ggplotRegression(fit1()) 
     
   ggplot() +
     geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar)) +
-    geom_smooth(data = mydat(), aes_string(x = input$xvar, y = input$yvar), method = "lm", color = "red")
+    geom_smooth(data = mydat(), aes_string(x = input$xvar, y = input$yvar), method = "lm", color = "seagreen3")+
+           labs(title = paste("Adj R2 = ",signif(summary(lm1())$adj.r.squared, 5),
+                              "Intercept =",signif(lm1()$coef[[1]],5 ),
+                              " Slope =",signif(lm1()$coef[[2]], 5),
+                              " P =",signif(summary(lm1())$coef[2,4], 5))) +
+      theme_bw()
     
   })
 }
-
-##add checkbox input where it logs y axis
 
 # Run the application 
 shinyApp(ui = ui, server = server)
