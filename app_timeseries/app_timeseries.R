@@ -1,15 +1,16 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(tidyverse)
 library(shiny)
 library(shinythemes)
+library(RColorBrewer)
+library(maps)
+library(mapproj)
+library(leaflet)
+library(sf)
+library(tmap)
+library(ggrepel)
+library(ggspatial)
+library(raster)
 
 # load the data here
 # as long as your selections have the exact same notation as the columns,
@@ -22,6 +23,27 @@ library(shinythemes)
 HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
 
+#### FROM MAP #####
+
+
+#Load the California County sf
+ca_counties <- read_sf(".", layer = "california_county_shape_file")
+
+
+
+#Load Coast Counties
+coast_counties <- ca_counties %>%
+  filter(NAME %in% c("San Luis Obispo", "Santa Barbara", "Ventura", "Los Angeles", "Orange", "San Diego"))
+
+st_crs(coast_counties) = 4326
+
+
+#Load clean_hab as sf
+sites_hab <- st_as_sf(HAB, coords = c("longitude", "latitude"), crs = 4326)
+
+###### FROM MAP ABOVE #####
+
+###### FROM APP_ABUN ######
 
 # variables <- clean_hab %>% 
 #   dplyr::select(year,
@@ -138,7 +160,58 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                    
                    
                    # Create tab for Interactive Map
-                   tabPanel(title = "Interactive Map")
+                   tabPanel(title = "Interactive Map",
+                            # Sidebar with a slider, radio, and select inputs 
+                            sidebarLayout(
+                              sidebarPanel(
+                                radioButtons("radioyear_map", 
+                                             label = "Year:",
+                                             choices = list("2008" = 1,
+                                                            "2009" = 2,
+                                                            "2010" = 3,
+                                                            "2011" = 4,
+                                                            "2012" = 5,
+                                                            "2013" = 6,
+                                                            "2014" = 7,
+                                                            "2015" = 8,
+                                                            "2016" = 9,
+                                                            "2018" = 10), 
+                                             selected = 1), 
+                                sliderInput("slidermonth_map",
+                                            "Month:",
+                                            min = 1,
+                                            max = 12,
+                                            value = 1),
+                                
+                                selectInput("selectvariable_map",
+                                            label = "Choose a HAB Variable:",
+                                            choices = list("Akashiwo sp." = "akashiwo", 
+                                                           "Alexandrium spp." = "alexandrium", 
+                                                           "Ammonia" = "ammonia", 
+                                                           "Chlorophyll" = "chlorophyll", 
+                                                           "Domoic Acid" = "domoic_acid", 
+                                                           "N+N" = "n_n", 
+                                                           "Phosphate" = "phosphate",
+                                                           "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp",
+                                                           "Silicate" = "silicate", 
+                                                           "Water Temp" = "water_temp"),
+                                            selected = 1)
+                              ),
+                              
+                              # Show a plot of the generated distribution
+                              mainPanel(
+                                tabsetPanel(
+                                  tabPanel("HAB Map",
+                                           leafletOutput(outputId = "Map")
+                                           
+                                  )
+                                )
+                              )
+                              
+                            )
+                            
+                            
+                            )
                    
                    
                    
@@ -234,6 +307,76 @@ server <- function(input, output) {
     
     
   })
+  
+  
+######## MAP #########
+  
+  output$Map <- renderLeaflet({
+    
+    #create new df for filtering input$year, input$month, and select the variables we want,
+    new_hab <- HAB %>%
+        filter(year == input$radioyear_map & 
+                 month == input$slidermonth_map) %>%
+        select(akashiwo,
+               alexandrium,
+               ammonia,
+               chlorophyll,
+               domoic_acid,
+               n_n,
+               phosphate,
+               pseudo_nitzschia_spp,
+               silicate,
+               water_temp)
+      
+    
+    # color <- switch(input$selectvariable_map,
+    #                 
+    #                 "Akashiwo sp." = "red",
+    #                 "Alexandrium spp." = "blue",
+    #                 "Ammonia" = "purple",
+    #                 "Chlorophyll" = "green",
+    #                 "Domoic Acid" = "yellow",
+    #                 "N+N" = "cyan",
+    #                 "Phosphate" = "maroon",
+    #                 "Pseudo Nitzschia spp." = "darkolivegreen",
+    #                 "Silicate" = "darkseagreen",
+    #                 "Water Temp" = "coral" )
+    
+    
+    # ggplot()+
+    #   geom_sf(data = coast_counties, fill = "white") +
+    #   geom_sf(data = new_hab(), aes_string(fill = input$variable), size = 10) +
+    #   #scale_color_manual(values = color) +
+    #   theme_classic() +
+    #   coord_sf(datum = NA)
+    
+    tm_map <- tm_shape(new_hab)+
+      tm_bubbles(size = input$selectvariable_map, col = color, border.col = color) +
+      tm_shape(coast_counties) +
+      tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+      tm_view(basemaps = "Stamen.TerrainBackground")
+    
+    tmap_mode("view")
+    
+    tmap_leaflet(tm_map)
+    
+    
+    
+    
+    
+    # tmap_mode("view")
+    #basemaps in leaflet::providers
+    
+    
+    # leaflet() %>%
+    #   addTiles() %>%
+    #   addPolygons(data=coast_counties, 
+    #               fill = "red") %>% 
+    #   addCircleMarkers(data=new_hab$geometry, fillColor = color     )  
+    
+    
+  
+  
 }
 
 # Run the application 
