@@ -196,6 +196,7 @@ server <- function(input, output) {
      #          silicate, 
      #          water_temp)
      
+     # filters by location only
      filtered <- HAB %>%
        filter(location == input$selectlocation_abun) %>%
        select(year,
@@ -215,6 +216,7 @@ server <- function(input, output) {
      
      # maybe don't allow to select by year, still show month by variable but do facet_wrap and show all the months
      # compare seasonality of these species across all years
+     # TIME SERIES GRAPH INSTEAD?? see assignment 3
      
      ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
        geom_col(fill = "seagreen3", color = "seagreen") +
