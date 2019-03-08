@@ -1,0 +1,80 @@
+---
+title: "HABcor"
+author: "Natalie Dornan"
+date: "March 5, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(stringr)
+library(leaflet)
+library(ggrepel)
+library(ggspatial)
+library(RColorBrewer)
+library(rgdal)
+library(shiny)
+
+
+# Interactive Map
+library(sf)
+library(tmap)
+library(sp)
+library(spatstat)
+library(gstat)
+library(raster)
+library(maptools)
+library(rgeos)
+
+select <- dplyr::select
+```
+
+```{r, troubleshoot server}
+
+corrHAB <- read.csv("clean_hab.csv")%>%
+  select("location",
+    "akashiwo", 
+        "alexandrium", 
+        "ammonia", 
+        "chlorophyll", 
+        "domoic_acid", 
+        "n_n", 
+        "phosphate", 
+        "silicate", 
+        "pseudo_nitzschia_spp",
+        "water_temp")
+
+write.csv(corrHAB, "corrHAB.csv")
+
+```
+
+```{r}
+
+
+ggplotRegression <- function (fit) {
+
+require(ggplot2)
+
+ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+  geom_point() +
+  stat_smooth(method = "lm", col = "cornflowerblue") +
+  labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                     "Intercept =",signif(fit$coef[[1]],5 ),
+                     " Slope =",signif(fit$coef[[2]], 5),
+                     " P =",signif(summary(fit)$coef[2,4], 5)))+
+  theme_minimal()
+}
+
+fit1 <- lm(domoic_acid ~ chlorophyll, data = HAB)
+
+ggplotRegression(fit1)
+
+
+```
+

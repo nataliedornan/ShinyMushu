@@ -47,7 +47,7 @@ ui <- fluidPage(
                                   "N+N" = "n_n", 
                                   "Phosphate" = "phosphate", 
                                   "Silicate" = "silicate",
-                                  "Pseudo Nitzsia Spp." = "pseudo_nitzschia_spp",
+                                  "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp",
                                   "Water Temp" = "water_temp"),
                    selected = "chlorophyll"),
       
@@ -63,7 +63,7 @@ ui <- fluidPage(
                                   "Domoic Acid" = "domoic_acid", 
                                   "N+N" = "n_n", 
                                   "Phosphate" = "phosphate",
-                                  "Pseudo Nitzsia Spp." = "pseudo_nitzschia_spp",
+                                  "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp",
                                   "Silicate" = "silicate", 
                                   "Water Temp" = "water_temp"),
                    selected = "akashiwo")
