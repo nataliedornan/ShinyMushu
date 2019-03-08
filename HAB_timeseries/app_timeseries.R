@@ -3,8 +3,10 @@
 library(tidyverse)
 library(shiny)
 library(shinythemes)
+library(ggplot2)
 library(tseries)
 library(forecast)
+library(scales)
 
 # load the data here
 # as long as your selections have the exact same notation as the columns,
@@ -95,12 +97,12 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                                                        "Scripps Pier" = "Scripps Pier"),
                                                         selected = 1),
                                             
-                                            # Create select widget for year
-                                            selectInput("selectyear_abun",
-                                                        label = h4("Year"),
-                                                        choices = c(2008:2018), 
-                                                        selected = 1),
-                                            
+                                            # # Create select widget for year
+                                            # selectInput("selectyear_abun",
+                                            #             label = h4("Year"),
+                                            #             choices = c(2008:2018), 
+                                            #             selected = 1),
+                                            # 
                                             # Create select widget for variable
                                             selectInput("selectvar_abun",
                                                         label = h4("Variable"),
@@ -214,9 +216,16 @@ server <- function(input, output) {
     
     ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
       geom_col(fill = "seagreen3", color = "seagreen") +
-      facet_wrap(~year, scale = "free") +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_x_continuous(expand = c(0,0), limits = c(0,12.5), breaks = scales::pretty_breaks(n = 12)) +
+      # facet_wrap(~year, scale = "free") +
       labs(x = "Month", y = "Variable") +
-      theme_bw()
+      theme_bw() +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            panel.border = element_blank(),
+            axis.line = element_line(colour = "black"))
     
     # need location (selectlocation_abun), then year (selectyear_abun), then variable (selectvar_abun) (with all months in the year)
     

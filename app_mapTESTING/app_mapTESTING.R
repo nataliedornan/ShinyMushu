@@ -169,6 +169,7 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                              label = "Year:",
                                              choices = c(2008:2018), 
                                              selected = 1), 
+                                
                                 sliderInput("slidermonth_map",
                                             "Month:",
                                             min = 1,
@@ -186,7 +187,7 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                                            "Phosphate" = "phosphate",
                                                            "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp",
                                                            "Silicate" = "silicate", 
-                                                           "Water Temp" = "water_temp"),
+                                                           "Water Temp" = "water_temp"), 
                                             selected = 1)
                               ),
                               
@@ -215,25 +216,25 @@ ui <- navbarPage(theme = shinytheme("superhero"),
 server <- function(input, output) {
   
   
-  # Create reactive function to isolate reactions related to the HAB abundance chart
-  MapInput <- reactive({
-    #create new df for filtering input$year, input$month, and select the variables we want,
-    map_sites <- sites_hab %>%   
-    filter(year == input$radioyear_map,
-             month == input$slidermonth_map) %>%
-      select(akashiwo,
-             alexandrium,
-             ammonia,
-             chlorophyll,
-             domoic_acid,
-             n_n,
-             phosphate,
-             pseudo_nitzschia_spp,
-             silicate,
-             water_temp,
-             geometry)
-    
-  })
+  # # Create reactive function to isolate reactions related to the HAB abundance chart
+  # MapInput <- reactive({
+  #   #create new df for filtering input$year, input$month, and select the variables we want,
+  #   map_sites <- sites_hab %>%   
+  #   filter(year == input$radioyear_map,
+  #            month == input$slidermonth_map) %>%
+  #     select(akashiwo,
+  #            alexandrium,
+  #            ammonia,
+  #            chlorophyll,
+  #            domoic_acid,
+  #            n_n,
+  #            phosphate,
+  #            pseudo_nitzschia_spp,
+  #            silicate,
+  #            water_temp,
+  #            geometry)
+  #   
+  # })
   
   #clean_hab
   # HABgraph <- filter(input$year, input$month, and select the variable)
@@ -306,6 +307,40 @@ server <- function(input, output) {
 ######## MAP ##################################################
   
   output$Map <- renderPlot({
+    
+    req(sites_hab)
+    
+    map_sites <- sites_hab %>% 
+      filter(year == input$radioyear_map,
+             month == input$slidermonth_map) %>% 
+      select_(akashiwo,
+              alexandrium,
+              ammonia,
+              chlorophyll,
+              domoic_acid,
+              n_n,
+              phosphate,
+              pseudo_nitzschia_spp,
+              silicate,
+              water_temp,
+              geometry)
+    
+    
+  # map_sites <- sites_hab %>%
+  #   print(filter(year == input$radioyear_map,
+  #            month == input$slidermonth_map)) %>%
+  #   select(akashiwo,
+  #            alexandrium,
+  #            ammonia,
+  #            chlorophyll,
+  #            domoic_acid,
+  #            n_n,
+  #            phosphate,
+  #            pseudo_nitzschia_spp,
+  #            silicate,
+  #            water_temp,
+  #            geometry)
+  
     
     ggplot() +
       geom_sf(data = coast_counties, fill = "gray40") +
