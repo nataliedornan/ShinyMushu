@@ -1,5 +1,7 @@
 library(shiny)
 library(tidyverse)
+library(data.table)
+library(ggplot2)
 
 HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
@@ -39,9 +41,11 @@ ui <- fluidPage(
                                         "Phosphate" = "phosphate", 
                                         "Silicate" = "silicate", 
                                         "Water Temp" = "water_temp"),
-                         selected = "alexandrium"),
-      
-      ##create group checkbox for y variables     
+                         selected = "chlorophyll"),
+  
+##create group checkbox for y variables   
+         
+      checkboxInput("logy", "Log Y", TRUE),
       
       radioButtons(inputId = "xvar", label = h3("Independent Variables"), 
                          choices = list("Akashiwo sp." = "akashiwo", 
@@ -54,17 +58,18 @@ ui <- fluidPage(
                                         "Silicate" = "silicate", 
                                         "Water Temp" = "water_temp"),
                          selected = "akashiwo")
-      
+
+    
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(
-        tabPanel("Application",     
+        tabPanel("Application",  
                  plotOutput("scatter")#,
            #      tableOutput("lmStats"),
            #      tableOutput("lmResults"),
-            #     tableOutput("values")
+#                 tableOutput("values")
            ))
     )
   )
@@ -73,15 +78,41 @@ ui <- fluidPage(
 ####################################################################################
 
 server <- function(input, output) {
+  
   mydat <- reactive({
+    
   HAB %>%
-      filter(location == input$location)
+      filter(location == input$location) 
   })
-      
+  
+  
+  
+ # lm1 <- reactive({lm(input$yvar ~ input$xvar, data = mydat())})
+
   output$scatter <- renderPlot({
     
-    ggplot() +
-      geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar))
+#    ggplotRegression <- function (fit) {
+ #     
+  #    require(ggplot2)
+      
+#      ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+ #       geom_point() +
+  #      stat_smooth(method = "lm", col = "red") +
+   #     labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+    #                       "Intercept =",signif(fit$coef[[1]],5 ),
+     #                      " Slope =",signif(fit$coef[[2]], 5),
+      #                     " P =",signif(summary(fit)$coef[2,4], 5)))
+    #}
+    
+  #  fit1 <- reactive({lm(reformulate(input$yvar ~ input$xvar), data = mydat())})  
+    
+    
+   # ggplotRegression(fit1()) 
+    
+  ggplot() +
+    geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar)) +
+    geom_smooth(data = mydat(), aes_string(x = input$xvar, y = input$yvar), method = "lm", color = "red")
+    
   })
 }
 
