@@ -1,13 +1,15 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+####### TIME SERIES GRAPH #############################################
 
+library(tidyverse)
 library(shiny)
+library(shinythemes)
+
+
+# Read in data using read.csv instead of read_csv to specify strings as factors and solve issue of R assigning integer classes
+HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
+
+
+########## ui ##########################################################
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -32,6 +34,9 @@ ui <- fluidPage(
    )
 )
 
+
+############## SERVER #############################################################
+
 # Define server logic required to draw a histogram
 server <- function(input, output) {
    
@@ -45,6 +50,8 @@ server <- function(input, output) {
    })
 }
 
-# Run the application 
+
+
+############## RUN THE APPLICATION ############################################################# 
 shinyApp(ui = ui, server = server)
 
