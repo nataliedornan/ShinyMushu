@@ -1,11 +1,3 @@
-# 
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
 library(tidyverse)
@@ -15,6 +7,7 @@ library(mapproj)
 library(leaflet)
 HAB <- read.csv("HAB.csv") 
 
+#load the data clean_hab
 clean_hab <- HAB %>% 
   clean_names(., case = c("snake")) %>% # Convert to snake case
   dplyr::select(year, month, day, latitude, longitude, location, 
@@ -40,22 +33,22 @@ clean_hab <- HAB %>%
   mutate("n_n" = nitrate + nitrite) %>%
   mutate(pseudo_nitzschia_spp = pseudo_nitzschia_delicatissima + pseudo_nitzschia_seriata)## sum N+N concentrations
 
+
+
+#Load the California County sf
 ca_counties <- read_sf(".", layer = "california_county_shape_file")
 
-# Load raster package and an example SpatialPolygonsDataFrame
-data("ca_counties", package="maptools")
 
 
-#This worked, as well, sort of. Able to get a map of the six locations! 
+#Load Coast Counties
 coast_counties <- ca_counties %>%
   filter(NAME %in% c("San Luis Obispo", "Santa Barbara", "Ventura", "Los Angeles", "Orange", "San Diego"))
 
+st_crs(coast_counties) = 4326
 
 
-#example from lab 6, sort of works.. still trying to figure out how to post each data point
-
-
-sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"))
+#Load clean_hab as sf
+sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"), crs = 4326)
 
 
 
@@ -66,7 +59,7 @@ ui <- fluidPage(
    # Application title
    titlePanel("HABs of Southern California"),
    
-   # Sidebar with a slider input for number of bins 
+   # Sidebar with a slider, radio, and select inputs 
    sidebarLayout(
       sidebarPanel(
         radioButtons("year", 
@@ -107,7 +100,7 @@ ui <- fluidPage(
       mainPanel(
         tabsetPanel(
           tabPanel("HAB Map",
-            plotOutput(outputId = "Map")
+            leafletOutput(outputId = "Map")
             
           )
           )
@@ -125,13 +118,21 @@ server <- function(input, output) {
   #create new df for filtering input$year, input$month, and select the variables we want,
   new_hab <- reactive({
 
+   sites_hab %>%
     
-    sites_hab %>%
-      
-      filter(year == input$year & 
-               month == input$month) %>%
-      select( input$variable) %>%
-      group_by(input$month)
+    filter(year == input$year & 
+             month == input$month) %>%
+    select(akashiwo,
+           alexandrium,
+           ammonia,
+           chlorophyll,
+           domoic_acid,
+           n_n,
+           phosphate,
+           pseudo_nitzschia_spp,
+           silicate,
+           water_temp)
+    
     
     
     
@@ -152,11 +153,14 @@ server <- function(input, output) {
 
   })
     
-    output$Map <- renderPlot({
+    output$Map <- renderLeaflet({
     
       
+      
+      
+      
       color <- switch(input$variable,
-                      
+
                       "Akashiwo sp." = "red",
                       "Alexandrium spp." = "blue",
                       "Ammonia" = "purple",
@@ -166,27 +170,40 @@ server <- function(input, output) {
                       "Phosphate" = "maroon",
                       "Pseudo Nitzschia spp." = "darkolivegreen",
                       "Silicate" = "darkseagreen",
-                      "Water Temp" = "coral"
-                      
-      )
+                      "Water Temp" = "coral" )
       
       
       # ggplot()+
       #   geom_sf(data = coast_counties, fill = "white") +
-      #   geom_sf(data = new_hab(), aes_string(fill = input$variable), size = 4) +
-      #   scale_color_manual(values = color) +
+      #   geom_sf(data = new_hab(), aes_string(fill = input$variable), size = 10) +
+      #   #scale_color_manual(values = color) +
       #   theme_classic() +
       #   coord_sf(datum = NA)
       
-      map_ca_hab <- tm_shape(sites_hab) +
-        tm_bubbles(size = input$variable, col = color)+
+      tm_map <- tm_shape(new_hab)+
+        tm_bubbles(size = input$variable, col = color, border.col = color) +
         tm_shape(coast_counties) +
-        tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
-
+        tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+        tm_view(basemaps = "Stamen.TerrainBackground")
+      
       tmap_mode("view")
+      
+      tmap_leaflet(tm_map)
+
+      
+      
+      
+      
+      # tmap_mode("view")
       #basemaps in leaflet::providers
       
-      map_ca_hab
+      
+      # leaflet() %>%
+      #   addTiles() %>%
+      #   addPolygons(data=coast_counties, 
+      #               fill = "red") %>% 
+      #   addCircleMarkers(data=new_hab$geometry, fillColor = color     )  
+      
      
       
      
