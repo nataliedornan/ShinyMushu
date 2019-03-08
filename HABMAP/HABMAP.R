@@ -1,9 +1,16 @@
 
 library(shiny)
 library(tidyverse)
+library(janitor)
 library(RColorBrewer)
-library(maps)
-library(mapproj)
+library(sf)
+library(tmap)
+library(sp)
+library(spatstat)
+library(gstat)
+library(raster)
+library(maptools)
+library(rgeos)
 library(leaflet)
 HAB <- read.csv("HAB.csv") 
 
@@ -62,7 +69,7 @@ ui <- fluidPage(
    # Sidebar with a slider, radio, and select inputs 
    sidebarLayout(
       sidebarPanel(
-        radioButtons("year", 
+        radioButtons("year",
                      label = "Year:",
                      choices = list("2008" = 1,
                                     "2009" = 2,
@@ -73,8 +80,8 @@ ui <- fluidPage(
                                     "2014" = 7,
                                     "2015" = 8,
                                     "2016" = 9,
-                                    "2018" = 10), 
-                     selected = 1), 
+                                    "2018" = 10),
+                     selected = 1),
          sliderInput("month",
                      "Month:",
                      min = 1,
@@ -108,58 +115,69 @@ ui <- fluidPage(
          
    )
 )
-
-# Define server logic required to draw a histogram
+#########################################################################
+# Define server logic 
 server <- function(input, output) {
   
   
   
   
   #create new df for filtering input$year, input$month, and select the variables we want,
-  new_hab <- reactive({
-
-   sites_hab %>%
-    
-    filter(year == input$year & 
-             month == input$month) %>%
-    select(akashiwo,
-           alexandrium,
-           ammonia,
-           chlorophyll,
-           domoic_acid,
-           n_n,
-           phosphate,
-           pseudo_nitzschia_spp,
-           silicate,
-           water_temp)
-    
-    
-    
-    
-    # akashiwo, 
-    # alexandrium, 
-    # ammonia, 
-    # chlorophyll, 
+  # new_hab <- reactive({
+  # 
+  #   #filter_hab <- 
+  #     
+  #     sites_hab %>%
+  #     
+  #     filter(year %in% input$year & 
+  #            month %in% input$month)
+  #   
+  #   
+  #   # %>%
+  #   #   select(akashiwo,
+  #   #          alexandrium,
+  #   #          ammonia,
+  #   #          chlorophyll,
+  #   #          domoic_acid,
+  #   #          n_n,
+  #   #          phosphate,
+  #   #          pseudo_nitzschia_spp,
+  #   #          silicate,
+  #   #          water_temp)
+  #   # 
+  #   
+  #   
+  # 
+  # 
+  # 
+  # 
+    # akashiwo,
+    # alexandrium,
+    # ammonia,
+    # chlorophyll,
     # domoic_acid,
     # n_n,
     # phosphate,
     # pseudo_nitzschia_spp,
-    # silicate, 
+    # silicate,
     # water_temp
+  # 
+  # 
+  # 
+  # 
+  # 
+  # })
     
-    
-    
-
-
-  })
-    
-    output$Map <- renderLeaflet({
+    output$Map <- renderLeaflet({  
     
       
+     select_var <- gathered_hab %>%
+       filter(year == input$year &
+                month == input$month &
+         Variable == input$variable)
       
       
-      
-      color <- switch(input$variable,
+      mapcolor <- switch(input$variable,
 
                       "Akashiwo sp." = "red",
                       "Alexandrium spp." = "blue",
@@ -180,15 +198,37 @@ server <- function(input, output) {
       #   theme_classic() +
       #   coord_sf(datum = NA)
       
-      tm_map <- tm_shape(new_hab)+
-        tm_bubbles(size = input$variable, col = color, border.col = color) +
+      
+      
+     
+      
+    # if (packageVersion("tmap") >= 2.0) {
+    #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
+    #     tm_shape(new_hab())+
+    #     tm_bubbles(input$variable, col = color, border.col = color) +
+    #     tm_shape(coast_counties) +
+    #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+    # }
+    # else{
+    #   tm <- tm_shape(new_hab()) +
+    #     tm_bubbles(input$variable)+
+    #     tm_view(basemaps = "Stamen.TerrainBackground")
+  
+    # }
+  
+      
+      
+       tm <- tm_shape(select_var) +
+         tm_bubbles(size = input$variable, col = mapcolor, border.col = mapcolor)+
         tm_shape(coast_counties) +
         tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
         tm_view(basemaps = "Stamen.TerrainBackground")
       
+     
+      
       tmap_mode("view")
       
-      tmap_leaflet(tm_map)
+      tmap_leaflet(tm)
 
       
       
@@ -204,23 +244,10 @@ server <- function(input, output) {
       #               fill = "red") %>% 
       #   addCircleMarkers(data=new_hab$geometry, fillColor = color     )  
       
-     
+    
       
      
-    })
-    
-    
-    
-    
-    
-    
-    
-  
-  
-  
-  
-  
-  
+    }) 
 }
 
 # Run the application 

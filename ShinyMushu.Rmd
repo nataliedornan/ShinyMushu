@@ -191,28 +191,29 @@ str(clean_hab)
 
 
 #map of the locations of the different sites
-ggplot(coast_counties) +
-  geom_sf(data = coast_counties, 
-          fill = "NA",
-          color = "gray30",
-          size = 0.1) +
-  coord_sf(xlim = c(-118, 125), ylim = c(31, 36)) +
-  geom_point(data = clean_hab,
-             aes( x = longitude,
-               y = latitude),
-             fill = chlorophyll,
-             color = "gray10",
-             size = 3, 
-             alpha = 0.5) +
-  theme_minimal()+
-  coord_sf(datum = NA)
+# ggplot(coast_counties) +
+#   geom_sf(data = coast_counties, 
+#           fill = "NA",
+#           color = "gray30",
+#           size = 0.1) +
+#   coord_sf(xlim = c(-118, 125), ylim = c(31, 36)) +
+#   geom_point(data = clean_hab,
+#              aes( x = longitude,
+#                y = latitude),
+#              fill = chlorophyll,
+#              color = "gray10",
+#              size = 3, 
+#              alpha = 0.5) +
+#   theme_minimal()+
+#   coord_sf(datum = NA)
 
 
 #now going to try to make it interactive
 map_ca_hab <- tm_shape(sites_hab) +
   tm_bubbles(size = "chlorophyll", col = "green", border.col = "yellow")+
  tm_shape(coast_counties) +
-  tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+  tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+  tm_view(basemaps = "Stamen.TerrainBackground")
 
 tmap_mode("view")
 #basemaps in leaflet::providers
@@ -223,5 +224,24 @@ tmap_leaflet(map_ca_hab)
 
 ```
 
+going to try to gather and reshape the data into rows instead of columns
+
+```{r}
+
+gathered_hab <- sites_hab %>%
+  gather(Variable, 
+         akashiwo,
+   alexandrium,
+   ammonia,
+  chlorophyll,
+  domoic_acid,
+    n_n,
+    phosphate,
+     pseudo_nitzschia_spp,
+   silicate,
+   water_temp)
+
+
+```
 
 
