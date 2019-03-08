@@ -229,7 +229,8 @@ going to try to gather and reshape the data into rows instead of columns
 ```{r}
 
 gathered_hab <- sites_hab %>%
-  gather(Variable, 
+  gather(Variable,
+         Data,
          akashiwo,
    alexandrium,
    ammonia,
