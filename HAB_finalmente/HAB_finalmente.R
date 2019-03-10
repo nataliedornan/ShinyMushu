@@ -173,7 +173,7 @@ server <- function(input, output) {
              water_temp)
     
     ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
-      geom_col(fill = "seagreen", color = "seagreen") +
+      geom_col(fill = "seagreen3", color = "seagreen3") +
       scale_y_continuous(expand = c(0,0)) +
       scale_x_continuous(expand = c(0,0), limits = c(0,12.5), breaks = scales::pretty_breaks(n = 12)) +
       # facet_wrap(~year, scale = "free") +
