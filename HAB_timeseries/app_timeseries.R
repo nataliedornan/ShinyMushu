@@ -13,14 +13,6 @@ library(lubridate)
 HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
 
-HAB_dates <- HAB %>%
-  unite_("date", c("year", "month", "day"))
-# dplyr::select(date,
-#               chlorophyll) %>% 
-# isoyear(as.Date(date))
-
-# Use lubridate() functions to convert to times/dates
-HAB_dates$date <- ymd(HAB_dates$date) # based on the values that exist in the info in that column, it infers what is the month/day/year, and based on what you tell it, arranges data in that format.
 
 
 # Create 'ts' time series data
@@ -251,6 +243,52 @@ server <- function(input, output) {
   
   
 ##################################### TIME SERIES #########################################
+  
+  HAB_select <- reactive({
+    
+    HAB_date_2 <- clean_hab %>%
+      filter(location == input$selectlocation_time) %>%
+      dplyr::select(year,
+                    month,
+                    akashiwo,
+                    alexandrium,
+                    ammonia,
+                    chlorophyll,
+                    domoic_acid,
+                    n_n,
+                    phosphate,
+                    silicate,
+                    water_temp)
+    
+    
+    
+  })
+  
+  output$timePlot <- renderPlot({
+    
+    
+    
+    
+    HAB_ts <- ts(HAB_select, frequency = 12, start = c(2008), end = c(2017))
+    
+     
+      
+    
+    
+    ggplot(HAB_ts, aes_string(year, input$selectvar_time)) +
+      geom_line()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  })
+  
   
   
 }
