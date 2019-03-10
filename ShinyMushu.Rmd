@@ -21,6 +21,10 @@ library(ggspatial)
 library(RColorBrewer)
 library(rgdal)
 
+# Time series
+library(tseries)
+library(forecast)
+library(lubridate)
 
 # Interactive Map
 library(sf)
@@ -86,6 +90,27 @@ domoic_col
 ##laura was this across all years? really interesting stuff. Chl a is highest in May but domoic acid is highest in April! 
 
 ```
+
+```{r TIME SERIES GRAPH}
+
+HAB_dates <- clean_hab %>%
+ unite_("date", c("year", "month", "day")) %>% 
+  dplyr::select(date,
+                chlorophyll) %>% 
+  isoyear(as.Date(date))
+
+
+
+# Create 'ts' time series data using information in the res_total column from 'energy'
+
+HAB_ts <- ts(HAB_dates$chlorophyll, frequency = 12, start = c(2008,1))
+
+HAB_ts
+
+plot(HAB_ts)
+
+```
+
 
 ```{r NATALIE - Tab 3: Correlation plot}
 

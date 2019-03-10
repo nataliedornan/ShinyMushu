@@ -205,18 +205,36 @@ server <- function(input, output) {
               silicate, 
               water_temp)
      
-     View(filtered)
+     # abuncolor <- switch(input$selectvar_abun,
+     #                    
+     #                    "Akashiwo sp." = "red",
+     #                    "Alexandrium spp." = "blue",
+     #                    "Ammonia" = "purple",
+     #                    "Chlorophyll" = "green",
+     #                    "Domoic Acid" = "yellow",
+     #                    "N+N" = "cyan",
+     #                    "Phosphate" = "maroon",
+     #                    "Pseudo Nitzschia spp." = "darkolivegreen",
+     #                    "Silicate" = "darkseagreen",
+     #                    "Water Temp" = "coral" )
      
      # maybe don't allow to select by year, still show month by variable but do facet_wrap and show all the months
      # compare seasonality of these species across all years
      # TIME SERIES GRAPH INSTEAD?? see assignment 3
      
      ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
-       geom_col(fill = "seagreen3", color = "seagreen") +
-       facet_wrap(~year, scale = "free") +
+       geom_col(fill = "seagreen", color = "seagreen") +
+       scale_y_continuous(expand = c(0,0)) +
+       scale_x_continuous(expand = c(0,0), limits = c(0,12.5), breaks = scales::pretty_breaks(n = 12)) +
+       # facet_wrap(~year, scale = "free") +
        labs(x = "Month", y = "Variable") +
-       theme_bw()
-      
+       theme_bw() +
+       theme(panel.grid.major = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.background = element_blank(),
+             panel.border = element_blank(),
+             axis.line = element_line(colour = "black"))
+     
      # need location (selectlocation_abun), then year (selectyear_abun), then variable (selectvar_abun) (with all months in the year)
      
 # ggplot() +
