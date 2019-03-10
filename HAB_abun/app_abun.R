@@ -93,11 +93,6 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                                           "Scripps Pier" = "Scripps Pier"),
                                            selected = 1),
                                
-                               # Create select widget for year
-                               selectInput("selectyear_abun",
-                                           label = h4("Year"),
-                                           choices = c(2008:2018), 
-                                           selected = 1),
                                
                                # Create select widget for variable
                                selectInput("selectvar_abun",
