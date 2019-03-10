@@ -12,33 +12,9 @@ library(raster)
 library(maptools)
 library(rgeos)
 library(leaflet)
-HAB <- read.csv("HAB.csv") 
 
-#load the data clean_hab
-clean_hab <- HAB %>% 
-  clean_names(., case = c("snake")) %>% # Convert to snake case
-  dplyr::select(year, month, day, latitude, longitude, location, 
-                akashiwo_sanguinea_cells_l, alexandrium_spp_cells_l, 
-                ammonia_u_m, chlorophyll_mg_m3, domoic_acid_ng_m_l, 
-                nitrate_u_m, nitrite_u_m, phosphate_u_m, 
-                pseudo_nitzschia_delicatissima_group_cells_l,
-                pseudo_nitzschia_seriata_group_cells_l, 
-                silicate_u_m, water_temperature_c) %>% 
-  rename(akashiwo = akashiwo_sanguinea_cells_l,
-         alexandrium = alexandrium_spp_cells_l,
-         ammonia = ammonia_u_m,
-         chlorophyll = chlorophyll_mg_m3,
-         domoic_acid = domoic_acid_ng_m_l,
-         nitrate = nitrate_u_m,
-         nitrite = nitrite_u_m,
-         phosphate = phosphate_u_m,
-         pseudo_nitzschia_delicatissima = pseudo_nitzschia_delicatissima_group_cells_l,
-         pseudo_nitzschia_seriata = pseudo_nitzschia_seriata_group_cells_l,
-         silicate = silicate_u_m,
-         water_temp = water_temperature_c) %>% # Rename variables
-  mutate(year_month = str_c(year, month, sep = "-")) %>% # Create one column of year and month of sample together
-  mutate("n_n" = nitrate + nitrite) %>%
-  mutate(pseudo_nitzschia_spp = pseudo_nitzschia_delicatissima + pseudo_nitzschia_seriata)## sum N+N concentrations
+
+clean_hab_map <- read.csv("clean_hab.csv")
 
 
 
@@ -55,9 +31,21 @@ st_crs(coast_counties) = 4326
 
 
 #Load clean_hab as sf
-sites_hab <- st_as_sf(clean_hab, coords = c("longitude", "latitude"), crs = 4326)
+sites_hab <- st_as_sf(clean_hab_map, coords = c("longitude", "latitude"), crs = 4326)
 
-
+gathered_hab <- sites_hab %>%
+  gather(Variable,
+         Data,
+         akashiwo,
+         alexandrium,
+         ammonia,
+         chlorophyll,
+         domoic_acid,
+         n_n,
+         phosphate,
+         pseudo_nitzschia_spp,
+         silicate,
+         water_temp)
 
 
 # Define UI for application 
@@ -107,7 +95,7 @@ ui <- fluidPage(
       mainPanel(
         tabsetPanel(
           tabPanel("HAB Map",
-            leafletOutput(outputId = "Map")
+            plotOutput(outputId = "Map")
             
           )
           )
@@ -123,14 +111,12 @@ server <- function(input, output) {
   
   
   #create new df for filtering input$year, input$month, and select the variables we want,
-  # new_hab <- reactive({
+  #selected_var <- reactive({
+    
+    
+    
   # 
-  #   #filter_hab <- 
-  #     
-  #     sites_hab %>%
-  #     
-  #     filter(year %in% input$year & 
-  #            month %in% input$month)
+  #   
   #   
   #   
   #   # %>%
@@ -168,13 +154,13 @@ server <- function(input, output) {
   # 
   # })
     
-    output$Map <- renderLeaflet({  
+    output$Map <- renderPlot({  
     
       
-     select_var <- gathered_hab %>%
-       filter(year == input$year &
-                month == input$month &
-         Variable == input$variable)
+     selected_var <-  gathered_hab %>%
+        filter(year == input$year &
+                 month == input$month &
+                 Variable == input$variable)
       
       
       mapcolor <- switch(input$variable,
@@ -191,18 +177,7 @@ server <- function(input, output) {
                       "Water Temp" = "coral" )
       
       
-      # ggplot()+
-      #   geom_sf(data = coast_counties, fill = "white") +
-      #   geom_sf(data = new_hab(), aes_string(fill = input$variable), size = 10) +
-      #   #scale_color_manual(values = color) +
-      #   theme_classic() +
-      #   coord_sf(datum = NA)
-      
-      
-      
-     
-      
-    # if (packageVersion("tmap") >= 2.0) {
+      # if (packageVersion("tmap") >= 2.0) {
     #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
     #     tm_shape(new_hab())+
     #     tm_bubbles(input$variable, col = color, border.col = color) +
@@ -216,33 +191,30 @@ server <- function(input, output) {
   
     # }
   
+      # ggplot(selected_var$geometry)+
+      #   geom_sf(data = coast_counties, color = "gray80") +
+      #   geom_sf(data = selected_var, aes_string(fill = mapcolor), size = 4) +
+      #   theme_minimal()+
+      #   coord_sf(datum = NA)
       
       
-       tm <- tm_shape(select_var) +
-         tm_bubbles(size = input$variable, col = mapcolor, border.col = mapcolor)+
+      
+
+       tm <- tm_shape(selected_var$geometry) +
+        tm_bubbles(size = input$variable, col = mapcolor, border.col = mapcolor)+
         tm_shape(coast_counties) +
         tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
         tm_view(basemaps = "Stamen.TerrainBackground")
-      
-     
-      
+
+
+
       tmap_mode("view")
-      
+
       tmap_leaflet(tm)
 
       
+
       
-      
-      
-      # tmap_mode("view")
-      #basemaps in leaflet::providers
-      
-      
-      # leaflet() %>%
-      #   addTiles() %>%
-      #   addPolygons(data=coast_counties, 
-      #               fill = "red") %>% 
-      #   addCircleMarkers(data=new_hab$geometry, fillColor = color     )  
       
     
       
