@@ -91,26 +91,56 @@ domoic_col
 
 ```
 
+
+
+
+
+
+
+
+
 ```{r TIME SERIES GRAPH}
 
 HAB_dates <- clean_hab %>%
- unite_("date", c("year", "month", "day"))
-  # dplyr::select(date,
-  #               chlorophyll) %>% 
-  # isoyear(as.Date(date))
-
-# Use lubridate() functions to convert to times/dates
-HAB_dates$date <- ymd(HAB_dates$date) # based on the values that exist in the info in that column, it infers what is the month/day/year, and based on what you tell it, arranges data in that format.
+ unite_("date", c("year", "month", "day")) %>% 
+  dplyr::select(date,
+                chlorophyll) 
 
 
-# Create 'ts' time series data
-HAB_ts <- ts(HAB_dates$chlorophyll, frequency = 12, start = c(2008,1))
+HAB_date_2 <- clean_hab %>%
+  dplyr::select(year, location, ammonia) %>%
+  filter(location == "Stearns Wharf")
+
+
+# Create 'ts' time series data using information in the res_total column from 'energy'
+
+HAB_ts <- ts(HAB_date_2$ammonia, frequency = 12, start = c(2008,1))
 
 HAB_ts
 
 plot(HAB_ts)
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r NATALIE - Tab 3: Correlation plot}
@@ -176,6 +206,19 @@ ggplot(hab_cor, aes(x = n_n, y = domoic_acid)) +
                      " P =",signif(summary(d_n_lm)$coef[2,4], 5)))
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

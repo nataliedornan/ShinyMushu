@@ -177,19 +177,20 @@ server <- function(input, output) {
                       "Water Temp" = "coral" )
       
       
-      # if (packageVersion("tmap") >= 2.0) {
-    #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
-    #     tm_shape(new_hab())+
-    #     tm_bubbles(input$variable, col = color, border.col = color) +
-    #     tm_shape(coast_counties) +
-    #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
-    # }
-    # else{
-    #   tm <- tm_shape(new_hab()) +
-    #     tm_bubbles(input$variable)+
-    #     tm_view(basemaps = "Stamen.TerrainBackground")
-  
-    # }
+     #   if (packageVersion("tmap") >= 2.0) {
+     #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
+     #     tm_shape(new_hab())+
+     #     tm_bubbles(input$variable, col = color, border.col = color) +
+     #     tm_shape(coast_counties) +
+     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+     # }
+     # else{
+     #   tm <- tm_shape(new_hab()) +
+     #     tm_bubbles(input$variable)+
+     #     tm_shape(coast_counties) +
+     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+     #     tm_view(basemaps = "Stamen.TerrainBackground")
+     #}
   
       # ggplot(selected_var$geometry)+
       #   geom_sf(data = coast_counties, color = "gray80") +
