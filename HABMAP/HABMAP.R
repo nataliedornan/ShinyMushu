@@ -112,7 +112,8 @@ server <- function(input, output) {
   selected_var <- reactive({
     
       clean_hab %>%
-        filter(year == input$year) %>%
+        filter(year == input$year &
+                month == input$month) %>%
         select("location",
                "akashiwo", 
                "alexandrium",
@@ -130,54 +131,7 @@ server <- function(input, output) {
                "longitude")
     })
     
-  # 
-  #   
-  #   
-  #   
-  #   # %>%
-  #   #   select(akashiwo,
-  #   #          alexandrium,
-  #   #          ammonia,
-  #   #          chlorophyll,
-  #   #          domoic_acid,
-  #   #          n_n,
-  #   #          phosphate,
-  #   #          pseudo_nitzschia_spp,
-  #   #          silicate,
-  #   #          water_temp)
-  #   # 
-  #   
-  #   
-  # 
-  # 
-  # 
-  # 
-    # akashiwo,
-    # alexandrium,
-    # ammonia,
-    # chlorophyll,
-    # domoic_acid,
-    # n_n,
-    # phosphate,
-    # pseudo_nitzschia_spp,
-    # silicate,
-    # water_temp
-  # 
-  # 
-  # 
-  # 
-  # 
-  # })
-    
-  #  output$Map <- renderPlot({  
-    
-      
-     # selected_var <-  gathered_hab %>%
-     #    filter(year == input$year &
-     #             month == input$month &
-     #             Variable == input$variable)
-     #  
-      # 
+  
      mapcolor <- reactive({
        
        switch(input$variable,
@@ -203,9 +157,9 @@ server <- function(input, output) {
      
        tm <- 
          tm_shape(coast_counties) +
-         tm_fill("COUNTY", palette = "Set1", alpha = 0.5)+
+         tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
          tm_shape(sites_hab) +
-         tm_bubbles(size = input$variable)+
+         tm_bubbles(size = input$variable, palette = "Set2")+
           tm_view(basemaps = "Stamen.TerrainBackground")
         
        

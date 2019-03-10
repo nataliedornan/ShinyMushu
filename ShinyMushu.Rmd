@@ -108,7 +108,7 @@ HAB_dates <- clean_hab %>%
                 chlorophyll) %>%
   filter(location == "Stearns Wharf")
 
-HAB_dates$date <- ymd(HAB_dates$date)
+HAB_dates$date <- ymd(HAB_dates$date)   
 
 
 HAB_date_2 <- clean_hab %>%
