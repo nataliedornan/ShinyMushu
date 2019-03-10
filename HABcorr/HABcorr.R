@@ -41,14 +41,9 @@ ui <- fluidPage(
       radioButtons(inputId = "yvar", label = h3("Dependent Variables"), 
                    choices = list("Akashiwo sp." = "akashiwo", 
                                   "Alexandrium spp." = "alexandrium", 
-                                  "Ammonia" = "ammonia", 
                                   "Chlorophyll" = "chlorophyll", 
-                                  "Domoic Acid" = "domoic_acid", 
-                                  "N+N" = "n_n", 
-                                  "Phosphate" = "phosphate", 
-                                  "Silicate" = "silicate",
-                                  "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp",
-                                  "Water Temp" = "water_temp"),
+                                  "Domoic Acid" = "domoic_acid",
+                                  "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp"),
                    selected = "chlorophyll"),
       
       ##create group checkbox for y variables   
@@ -114,7 +109,9 @@ server <- function(input, output) {
                          "Intercept =",signif(lm1()$coef[[1]],5 ),
                          " Slope =",signif(lm1()$coef[[2]], 5),
                          " P =",signif(summary(lm1())$coef[2,4], 5))) +
-      theme_bw()
+      theme_bw()+
+      xlab(print(input$xvar))+
+      ylab(print(input$yvar))
     
   })
 }
