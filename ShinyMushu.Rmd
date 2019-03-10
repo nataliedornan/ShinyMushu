@@ -91,25 +91,69 @@ domoic_col
 
 ```
 
+
+
+
+
+
+
+
+
 ```{r TIME SERIES GRAPH}
 
 HAB_dates <- clean_hab %>%
  unite_("date", c("year", "month", "day")) %>% 
   dplyr::select(date,
-                chlorophyll) %>% 
-  isoyear(as.Date(date))
+                location,
+                chlorophyll) %>%
+  filter(location == "Stearns Wharf")
 
+HAB_dates$date <- ymd(HAB_dates$date)
+
+
+HAB_date_2 <- clean_hab %>%
+  dplyr::select(year, location, month, akashiwo, alexandrium, ammonia, chlorophyll, domoic_acid, n_n, phosphate, silicate, water_temp) %>%
+  filter(location == "Stearns Wharf")
 
 
 # Create 'ts' time series data using information in the res_total column from 'energy'
 
-HAB_ts <- ts(HAB_dates$chlorophyll, frequency = 12, start = c(2008,1))
+HAB_ts <- ts(HAB_date_2$chlorophyll, frequency = 12, start = c(2008), end = c(2017))
 
 HAB_ts
 
 plot(HAB_ts)
 
+ggplot(HAB_dates, aes(date, chlorophyll)) +
+      geom_line()
+    
+
+HAB_HW <- HoltWinters(HAB_ts)
+
+HAB_forecast <- forecast(HAB_HW, h = 60)
+plot(HAB_forecast)
+
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r NATALIE - Tab 3: Correlation plot}
@@ -175,6 +219,19 @@ ggplot(hab_cor, aes(x = n_n, y = domoic_acid)) +
                      " P =",signif(summary(d_n_lm)$coef[2,4], 5)))
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

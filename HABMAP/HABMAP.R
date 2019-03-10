@@ -193,6 +193,7 @@ server <- function(input, output) {
                        "Silicate" = "darkseagreen",
                        "Water Temp" = "coral" )
       
+<<<<<<< HEAD
      })
        
       # if (packageVersion("tmap") >= 2.0) {
@@ -208,6 +209,22 @@ server <- function(input, output) {
     #     tm_view(basemaps = "Stamen.TerrainBackground")
   
     # }
+=======
+     #   if (packageVersion("tmap") >= 2.0) {
+     #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
+     #     tm_shape(new_hab())+
+     #     tm_bubbles(input$variable, col = color, border.col = color) +
+     #     tm_shape(coast_counties) +
+     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+     # }
+     # else{
+     #   tm <- tm_shape(new_hab()) +
+     #     tm_bubbles(input$variable)+
+     #     tm_shape(coast_counties) +
+     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+     #     tm_view(basemaps = "Stamen.TerrainBackground")
+     #}
+>>>>>>> cfebeec18c616538fc5f8b7e2ad3d3c04220de65
   
       # ggplot(selected_var$geometry)+
       #   geom_sf(data = coast_counties, color = "gray80") +

@@ -220,8 +220,11 @@ server <- function(input, output) {
      ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
        geom_col(fill = "seagreen", color = "seagreen") +
        scale_y_continuous(expand = c(0,0)) +
-       scale_x_continuous(expand = c(0,0), limits = c(0,12.5), breaks = scales::pretty_breaks(n = 12)) +
-       # facet_wrap(~year, scale = "free") +
+       scale_x_continuous(expand = c(0,0),
+                          breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+                          labels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+                          # breaks = scales::pretty_breaks(n = 12),
+                          limits = c(0,12.5)) +
        labs(x = "Month", y = "Variable") +
        theme_bw() +
        theme(panel.grid.major = element_blank(),
@@ -229,6 +232,19 @@ server <- function(input, output) {
              panel.background = element_blank(),
              panel.border = element_blank(),
              axis.line = element_line(colour = "black"))
+     
+     # labels=c("1" = "January", 
+     #          "2" = "February",
+     #          "3" = "March",
+     #          "4" = "April",
+     #          "5" = "May",
+     #          "6" = "June",
+     #          "7" = "July",
+     #          "8" = "August",
+     #          "9" = "September",
+     #          "10" = "October",
+     #          "11" = "November",
+     #          "12" = "December")
      
      # need location (selectlocation_abun), then year (selectyear_abun), then variable (selectvar_abun) (with all months in the year)
      
