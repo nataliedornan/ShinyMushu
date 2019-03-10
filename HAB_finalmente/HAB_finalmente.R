@@ -60,11 +60,6 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                                                        "Scripps Pier" = "Scripps Pier"),
                                                         selected = 1),
                                             
-                                            # Create select widget for year
-                                            selectInput("selectyear_abun",
-                                                        label = h4("Year"),
-                                                        choices = c(2008:2018), 
-                                                        selected = 1),
                                             
                                             # Create select widget for variable
                                             selectInput("selectvar_abun",
@@ -94,8 +89,53 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                    
 ############## CORRELATION PLOT TAB #############################################################
                    # Create tab for Correlation Plot
-                   tabPanel(title = "Correlation Plot"),
-                   
+                   tabPanel(title = "Correlation Plot",
+sidebarLayout(
+  sidebarPanel(
+    
+    ##create select box with locations
+    selectInput(inputId = "location", label = h3("Station Name"), 
+                choices = list("Cal Poly Pier" = "Cal Poly Pier", 
+                               "Goleta Pier" = "Goleta Pier", 
+                               "Stearns Wharf" = "Stearns Wharf", 
+                               "Santa Monica Pier" = "Santa Monica Pier", 
+                               "Newport Pier" = "Newport Pier", 
+                               "Scripps Pier" = "Scripps Pier"), 
+                selected = 1),
+    
+    ##create group checkbox for x variables
+    radioButtons(inputId = "yvar", label = h3("Dependent Variables"), 
+                 choices = list("Akashiwo sp." = "akashiwo", 
+                                "Alexandrium spp." = "alexandrium", 
+                                "Chlorophyll" = "chlorophyll", 
+                                "Domoic Acid" = "domoic_acid",
+                                "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp"),
+                 selected = "chlorophyll"),
+    
+    ##create group checkbox for y variables   
+    checkboxInput("logy", "Log Y", TRUE),
+    
+    radioButtons(inputId = "xvar", label = h3("Independent Variables"), 
+                 choices = list("Akashiwo sp." = "akashiwo", 
+                                "Alexandrium spp." = "alexandrium", 
+                                "Ammonia" = "ammonia", 
+                                "Chlorophyll" = "chlorophyll", 
+                                "Domoic Acid" = "domoic_acid", 
+                                "N+N" = "n_n", 
+                                "Phosphate" = "phosphate",
+                                "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp",
+                                "Silicate" = "silicate", 
+                                "Water Temp" = "water_temp"),
+                 selected = "akashiwo")
+  ),
+  
+  # Show a plot of the generated distribution
+  mainPanel(
+               plotOutput("scatter"),
+               tableOutput("values")
+  )
+)
+),
                    
              
 ############## INTERACTIVE MAP TAB #############################################################   
@@ -133,18 +173,60 @@ server <- function(input, output) {
              water_temp)
     
     ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
-      geom_col(fill = "seagreen3", color = "seagreen") +
-      facet_wrap(~year, scale = "free") +
+      geom_col(fill = "seagreen", color = "seagreen") +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_x_continuous(expand = c(0,0), limits = c(0,12.5), breaks = scales::pretty_breaks(n = 12)) +
+      # facet_wrap(~year, scale = "free") +
       labs(x = "Month", y = "Variable") +
-      theme_bw()
+      theme_bw() +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            panel.border = element_blank(),
+            axis.line = element_line(colour = "black"))
     
   })
    
 ########## CORRELATION PLOT OUTPUT #############
    
+  mydat <- reactive({
+    
+    HAB %>%
+      filter(location == input$location) 
+  })
+  
+  #output$logy <- reactive({
+  #  log <- ln(input$var)
+  #})
+  
+  
+  output$values <- renderTable({
+    mydat()
+  })
+  
+  lm1 <- reactive({
+    lm(HAB[,names(HAB) %in% input$yvar] ~ HAB[,names(HAB) %in% input$xvar])
+  })  
+  
+  output$scatter <- renderPlot({
+    
+    ggplot() +
+      geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar)) +
+      geom_smooth(data = mydat(), aes_string(x = input$xvar, y = input$yvar), method = "lm", color = "seagreen3")+
+      labs(title = paste("Adj R2 = ",signif(summary(lm1())$adj.r.squared, 5),
+                         "Intercept =",signif(lm1()$coef[[1]],5 ),
+                         " Slope =",signif(lm1()$coef[[2]], 5),
+                         " P =",signif(summary(lm1())$coef[2,4], 5))) +
+      theme_bw()+
+      xlab(print(input$xvar))+
+      ylab(print(input$yvar))
+    
+  })
    
 ########## INTERACTIVE MAP OUTPUT #############
    
+  
+  
    
 }
 
