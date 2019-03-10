@@ -14,7 +14,7 @@ library(rgeos)
 library(leaflet)
 
 
-clean_hab_map <- read.csv("clean_hab.csv")
+clean_hab_map <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
 
 
@@ -95,7 +95,7 @@ ui <- fluidPage(
       mainPanel(
         tabsetPanel(
           tabPanel("HAB Map",
-            plotOutput(outputId = "Map")
+            leafletOutput(outputId = "Map")
             
           )
           )
@@ -108,12 +108,27 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   
-  
-  
   #create new df for filtering input$year, input$month, and select the variables we want,
-  #selected_var <- reactive({
+  selected_var <- reactive({
     
-    
+      clean_hab %>%
+        filter(year == input$year) %>%
+        select("location",
+               "akashiwo", 
+               "alexandrium",
+               "ammonia", 
+               "chlorophyll", 
+               "domoic_acid", 
+               "n_n", 
+               "phosphate",
+               "pseudo_nitzschia_spp", 
+               "silicate", 
+               "water_temp",
+               "year_month",
+               "geometry",
+               "latitude",
+               "longitude")
+    })
     
   # 
   #   
@@ -154,29 +169,32 @@ server <- function(input, output) {
   # 
   # })
     
-    output$Map <- renderPlot({  
+  #  output$Map <- renderPlot({  
     
       
-     selected_var <-  gathered_hab %>%
-        filter(year == input$year &
-                 month == input$month &
-                 Variable == input$variable)
+     # selected_var <-  gathered_hab %>%
+     #    filter(year == input$year &
+     #             month == input$month &
+     #             Variable == input$variable)
+     #  
+      # 
+     mapcolor <- reactive({
+       
+       switch(input$variable,
+       
+                       "Akashiwo sp." = "red",
+                       "Alexandrium spp." = "blue",
+                       "Ammonia" = "purple",
+                       "Chlorophyll" = "green",
+                       "Domoic Acid" = "yellow",
+                       "N+N" = "cyan",
+                       "Phosphate" = "maroon",
+                       "Pseudo Nitzschia spp." = "darkolivegreen",
+                       "Silicate" = "darkseagreen",
+                       "Water Temp" = "coral" )
       
-      
-      mapcolor <- switch(input$variable,
-
-                      "Akashiwo sp." = "red",
-                      "Alexandrium spp." = "blue",
-                      "Ammonia" = "purple",
-                      "Chlorophyll" = "green",
-                      "Domoic Acid" = "yellow",
-                      "N+N" = "cyan",
-                      "Phosphate" = "maroon",
-                      "Pseudo Nitzschia spp." = "darkolivegreen",
-                      "Silicate" = "darkseagreen",
-                      "Water Temp" = "coral" )
-      
-      
+     })
+       
       # if (packageVersion("tmap") >= 2.0) {
     #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
     #     tm_shape(new_hab())+
@@ -197,29 +215,39 @@ server <- function(input, output) {
       #   theme_minimal()+
       #   coord_sf(datum = NA)
       
-      
-      
 
-       tm <- tm_shape(selected_var$geometry) +
-        tm_bubbles(size = input$variable, col = mapcolor, border.col = mapcolor)+
-        tm_shape(coast_counties) +
-        tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
-        tm_view(basemaps = "Stamen.TerrainBackground")
-
-
-
-      tmap_mode("view")
-
-      tmap_leaflet(tm)
-
-      
-
-      
-      
-    
-      
+      output$Map <- renderLeaflet({
      
-    }) 
+       tm <- 
+         tm_shape(coast_counties) +
+         tm_fill("COUNTY", palette = "Set1", alpha = 0.5)+
+         tm_shape(sites_hab) +
+         tm_bubbles(size = input$variable)+
+          
+          tm_view(basemaps = "Stamen.TerrainBackground")
+        
+       
+       # output$Map <- renderLeaflet({
+       #   leaflet() %>% 
+       #     addTiles() %>% 
+       #     addProviderTiles("Stamen.TerrainBackground") 
+       #     #setView(lng = 31.165580, lat = 48.379433, zoom = 6) %>%
+       #     # addCircles(lng = as.numeric(selected_var$longtitude), 
+       #     #            lat = as.numeric(selected_var$latitude), 
+       #     #            weight = 1, 
+       #     #            radius = sqrt(selected_var$variable)*30, 
+       #     #            vars = paste(selected_hab$location, ": ", selected_var$variable), 
+       #     #            color = "blue") 
+       #               # fillOpacity = UkrStat$Opacity) %>%
+       #    # addLegend("bottomleft", pal = pal, values = selected_var$variable, title = "Population in Regions") 
+       
+
+     tmap_mode("view")
+
+    tmap_leaflet(tm)
+    
+      })
+    
 }
 
 # Run the application 

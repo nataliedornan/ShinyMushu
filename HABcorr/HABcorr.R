@@ -84,7 +84,18 @@ server <- function(input, output) {
   mydat <- reactive({
     
     HAB %>%
-      filter(location == input$location) 
+      filter(location == input$location) %>%
+      select("location",
+             "akashiwo", 
+             "alexandrium",
+             "ammonia", 
+             "chlorophyll", 
+             "domoic_acid", 
+             "n_n", 
+             "phosphate",
+             "pseudo_nitzschia_spp", 
+             "silicate", 
+             "water_temp")
   })
   
   #output$logy <- reactive({
@@ -93,6 +104,7 @@ server <- function(input, output) {
   
   
   output$values <- renderTable({
+    
     mydat()
   })
   
@@ -102,6 +114,28 @@ server <- function(input, output) {
   
   output$scatter <- renderPlot({
     
+#     hab_names_x <- switch(input$xvar,
+#                           
+#                           "Akashiwo sp." = HAB$akashiwo, 
+#                           "Alexandrium spp." = HAB$alexandrium, 
+#                           "Ammonia" = HAB$ammonia, 
+#                           "Chlorophyll" = HAB$chlorophyll, 
+#                           "Domoic Acid" = HAB$domoic_acid, 
+#                           "N+N" = HAB$n_n, 
+#                           "Phosphate" = HAB$phosphate,
+#                           "Pseudo Nitzschia Spp." = HAB$pseudo_nitzschia_spp,
+#                           "Silicate" = HAB$silicate, 
+#                           "Water Temp" = HAB$water_temp)
+#     
+#     hab_names_y <- switch(input$yvar,
+#                           
+#                           "Akashiwo sp." = HAB$akashiwo, 
+#                           "Alexandrium spp." = HAB$alexandrium, 
+#                           "Chlorophyll" = HAB$chlorophyll, 
+#                           "Domoic Acid" = HAB$domoic_acid,
+#                           "Pseudo Nitzschia Spp." = HAB$pseudo_nitzschia_spp)
+    
+    
     ggplot() +
       geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar)) +
       geom_smooth(data = mydat(), aes_string(x = input$xvar, y = input$yvar), method = "lm", color = "seagreen3")+
@@ -110,8 +144,8 @@ server <- function(input, output) {
                          " Slope =",signif(lm1()$coef[[2]], 5),
                          " P =",signif(summary(lm1())$coef[2,4], 5))) +
       theme_bw()+
-      xlab(print(input$xvar))+
-      ylab(print(input$yvar))
+      xlab(print(input$hab_names_x))+
+      ylab(print(input$hab_names_y))
     
   })
 }
