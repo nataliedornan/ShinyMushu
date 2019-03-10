@@ -108,17 +108,22 @@ HAB_dates <- clean_hab %>%
 
 
 HAB_date_2 <- clean_hab %>%
-  dplyr::select(year, location, ammonia) %>%
+  dplyr::select(year, location, month, akashiwo, alexandrium, ammonia, chlorophyll, domoic_acid, n_n, phosphate, silicate, water_temp) %>%
   filter(location == "Stearns Wharf")
 
 
 # Create 'ts' time series data using information in the res_total column from 'energy'
 
-HAB_ts <- ts(HAB_date_2$ammonia, frequency = 12, start = c(2008,1))
+HAB_ts <- ts(HAB_date_2$chlorophyll, frequency = 12, start = c(2008), end = c(2017))
 
 HAB_ts
 
 plot(HAB_ts)
+
+HAB_HW <- HoltWinters(HAB_ts)
+
+HAB_forecast <- forecast(HAB_HW, h = 60)
+plot(HAB_forecast)
 
 ```
 
