@@ -8,6 +8,7 @@ library(mapproj)
 library(leaflet)
 library(sf)
 library(tmap)
+library(tmaptools) # ADDED THIS
 library(ggrepel)
 library(ggspatial)
 library(raster)
@@ -166,17 +167,9 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                               sidebarPanel(
                                 radioButtons("radioyear_map", 
                                              label = "Year:",
-                                             choices = list("2008" = 1,
-                                                            "2009" = 2,
-                                                            "2010" = 3,
-                                                            "2011" = 4,
-                                                            "2012" = 5,
-                                                            "2013" = 6,
-                                                            "2014" = 7,
-                                                            "2015" = 8,
-                                                            "2016" = 9,
-                                                            "2018" = 10), 
+                                             choices = c(2008:2018), 
                                              selected = 1), 
+                                
                                 sliderInput("slidermonth_map",
                                             "Month:",
                                             min = 1,
@@ -194,15 +187,13 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                                                            "Phosphate" = "phosphate",
                                                            "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp",
                                                            "Silicate" = "silicate", 
-                                                           "Water Temp" = "water_temp"),
+                                                           "Water Temp" = "water_temp"), 
                                             selected = 1)
                               ),
                               
                               # Show a plot of the generated distribution
                               mainPanel(
-                                tabsetPanel(
-                                  tabPanel("HAB Map",
-                                           leafletOutput(outputId = "Map")
+                                plotOutput(outputId = "Map")
                                            
                                   )
                                 )
@@ -215,7 +206,7 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                    
                    
                    
-                 ))
+                 
 
 #
 #
@@ -225,21 +216,25 @@ ui <- navbarPage(theme = shinytheme("superhero"),
 server <- function(input, output) {
   
   
-  # Create reactive function to isolate reactions related to the HAB abundance chart
-  abun_data <- reactive({
-    
-    
-    # clean_hab %>%
-    # filter(location == input$selectlocation_abun) %>%
-    #  filter(year == input$selectyear_abun) %>%
-    # select(input$selectvar_abun)
-    # function(input$selectlocation_abun)
-    # if(input$location == "Stearns Wharf")
-    
-    #vswitch(input$selectlocation_abun,
-    # "Stearns Wharf")
-    
-  })
+  # # Create reactive function to isolate reactions related to the HAB abundance chart
+  # MapInput <- reactive({
+  #   #create new df for filtering input$year, input$month, and select the variables we want,
+  #   map_sites <- sites_hab %>%   
+  #   filter(year == input$radioyear_map,
+  #            month == input$slidermonth_map) %>%
+  #     select(akashiwo,
+  #            alexandrium,
+  #            ammonia,
+  #            chlorophyll,
+  #            domoic_acid,
+  #            n_n,
+  #            phosphate,
+  #            pseudo_nitzschia_spp,
+  #            silicate,
+  #            water_temp,
+  #            geometry)
+  #   
+  # })
   
   #clean_hab
   # HABgraph <- filter(input$year, input$month, and select the variable)
@@ -309,25 +304,47 @@ server <- function(input, output) {
   })
   
   
-######## MAP #########
+######## MAP ##################################################
   
-  output$Map <- renderLeaflet({
+  output$Map <- renderPlot({
     
-    #create new df for filtering input$year, input$month, and select the variables we want,
-    new_hab <- HAB %>%
-        filter(year == input$radioyear_map & 
-                 month == input$slidermonth_map) %>%
-        select(akashiwo,
-               alexandrium,
-               ammonia,
-               chlorophyll,
-               domoic_acid,
-               n_n,
-               phosphate,
-               pseudo_nitzschia_spp,
-               silicate,
-               water_temp)
-      
+    req(sites_hab)
+    
+    map_sites <- sites_hab %>% 
+      filter(year == input$radioyear_map,
+             month == input$slidermonth_map) %>% 
+      select_(akashiwo,
+              alexandrium,
+              ammonia,
+              chlorophyll,
+              domoic_acid,
+              n_n,
+              phosphate,
+              pseudo_nitzschia_spp,
+              silicate,
+              water_temp,
+              geometry)
+    
+    
+  # map_sites <- sites_hab %>%
+  #   print(filter(year == input$radioyear_map,
+  #            month == input$slidermonth_map)) %>%
+  #   select(akashiwo,
+  #            alexandrium,
+  #            ammonia,
+  #            chlorophyll,
+  #            domoic_acid,
+  #            n_n,
+  #            phosphate,
+  #            pseudo_nitzschia_spp,
+  #            silicate,
+  #            water_temp,
+  #            geometry)
+  
+    
+    ggplot() +
+      geom_sf(data = coast_counties, fill = "gray40") +
+      geom_sf(data = map_sites, aes(color = input$selectvariable_map), size = 0.3)
     
     # color <- switch(input$selectvariable_map,
     #                 
@@ -350,16 +367,16 @@ server <- function(input, output) {
     #   theme_classic() +
     #   coord_sf(datum = NA)
     
-    tm_map <- tm_shape(new_hab)+
-      tm_bubbles(size = input$selectvariable_map, col = color, border.col = color) +
-      tm_shape(coast_counties) +
-      tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
-      tm_view(basemaps = "Stamen.TerrainBackground")
-    
-    tmap_mode("view")
-    
-    tmap_leaflet(tm_map)
-    
+    # tm_map <- tm_shape(MapInput)+
+    #   tm_bubbles(size = input$selectvariable_map) +
+    #   tm_shape(coast_counties) +
+    #   tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+    #   tm_view(basemaps = "Stamen.TerrainBackground")
+    # 
+    # tmap_mode("view")
+    # 
+    # tmap_leaflet(tm_map)
+    # 
     
     
     
@@ -375,7 +392,7 @@ server <- function(input, output) {
     #   addCircleMarkers(data=new_hab$geometry, fillColor = color     )  
     
     
-  
+  })
   
 }
 
