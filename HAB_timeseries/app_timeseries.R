@@ -7,47 +7,29 @@ library(ggplot2)
 library(tseries)
 library(forecast)
 library(scales)
+library(lubridate)
 
-# load the data here
-# as long as your selections have the exact same notation as the columns,
-# if this is the same as you list in your widget lists
-# in the widgets (in the ui), need to call them 
-# in the server, you create a new reaction that will call "input$location" from the ui
-
-# use read.csv?
 
 HAB <- read.csv("clean_hab.csv", stringsAsFactors = F)
 
 
-# variables <- clean_hab %>% 
-#   dplyr::select(year,
-#                 month,
-#                 location,
-#                 akashiwo,
-#                 alexandrium,
-#                 ammonia,
-#                 chlorophyll,
-#                 domoic_acid,
-#                 phosphate,
-#                 silicate,
-#                 water_temp,
-#                 n_n,
-#                 pseudo_nitzschia_spp)
+HAB_dates <- HAB %>%
+  unite_("date", c("year", "month", "day"))
+# dplyr::select(date,
+#               chlorophyll) %>% 
+# isoyear(as.Date(date))
+
+# Use lubridate() functions to convert to times/dates
+HAB_dates$date <- ymd(HAB_dates$date) # based on the values that exist in the info in that column, it infers what is the month/day/year, and based on what you tell it, arranges data in that format.
 
 
-# # Allows me to call this in the widget without listing it out
-# year <- unique(variables$year)
-# location <- unique(variables$location)
-# akashiwo <- unique(variables$akashiwo)
-# alexandrium <- unique(variables$alexandrium)
-# ammonia <- unique(variables$ammonia)
-# chlorophyll <- unique(variables$chlorophyll)
-# domoic_acid <- unique(variables$domoic_acid)
-# phosphate <- unique(variables$phosphate)
-# silicate <- unique(variables$silicate) 
-# water_temp <- unique(variables$water_temp)
-# n_n <- unique(variables$n_n)
-# pseudo_nitzschia_spp <- unique(variables$pseudo_nitzschia_spp)
+# Create 'ts' time series data
+# HAB_ts <- ts(HAB_dates$chlorophyll, frequency = 12, start = c(2008,1))
+# 
+# HAB_ts
+# 
+# plot(HAB_ts)
+
 
 # Define UI for application that has tabs (navbarPage function)
 # Apply a shinytheme
@@ -132,6 +114,53 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                    tabPanel(title = "Correlation Plot"),
                    
                    
+                   # Create tab for Time Series Graph
+                   tabPanel(title = "Time Series",
+                            # Move sidebar containing widgets to right side of screen
+                            sidebarLayout(
+                                          sidebarPanel(
+                                            # Create select widget for monitoring locations
+                                            selectInput("selectlocation_time",
+                                                        label = h4("Monitoring Location"),
+                                                        choices = list("Cal Poly Pier" = "Cal Poly Pier", 
+                                                                       "Goleta Pier" = "Goleta Pier", 
+                                                                       "Stearns Wharf" = "Stearns Wharf", 
+                                                                       "Santa Monica Pier" = "Santa Monica Pier", 
+                                                                       "Newport Pier" = "Newport Pier", 
+                                                                       "Scripps Pier" = "Scripps Pier"),
+                                                        selected = 1),
+                                            
+                                            # # Create select widget for year
+                                            # selectInput("selectyear_abun",
+                                            #             label = h4("Year"),
+                                            #             choices = c(2008:2018), 
+                                            #             selected = 1),
+                                            # 
+                                            # Create select widget for variable
+                                            selectInput("selectvar_time",
+                                                        label = h4("Variable"),
+                                                        choices = list("Akashiwo sp." = "akashiwo", 
+                                                                       "Alexandrium spp." = "alexandrium", 
+                                                                       "Ammonia" = "ammonia", 
+                                                                       "Chlorophyll" = "chlorophyll", 
+                                                                       "Domoic Acid" = "domoic_acid", 
+                                                                       "N+N" = "n_n", 
+                                                                       "Phosphate" = "phosphate",
+                                                                       "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp",
+                                                                       "Silicate" = "silicate", 
+                                                                       "Water Temp" = "water_temp"), 
+                                                        selected = 1)
+                                            
+                                          ),
+                                          
+                                          # Show a plot ("abunPlot") of the generated distribution of HAB variables in the main panel
+                                          mainPanel(
+                                            plotOutput("timePlot"))
+                                          
+                            )
+                            
+                   ),
+                   
                    
                    # Create tab for Interactive Map
                    tabPanel(title = "Interactive Map")
@@ -148,28 +177,7 @@ ui <- navbarPage(theme = shinytheme("superhero"),
 server <- function(input, output) {
   
   
-  # Create reactive function to isolate reactions related to the HAB abundance chart
-  abun_data <- reactive({
-    
-    
-    # clean_hab %>%
-    # filter(location == input$selectlocation_abun) %>%
-    #  filter(year == input$selectyear_abun) %>%
-    # select(input$selectvar_abun)
-    # function(input$selectlocation_abun)
-    # if(input$location == "Stearns Wharf")
-    
-    #vswitch(input$selectlocation_abun,
-    # "Stearns Wharf")
-    
-  })
-  
-  #clean_hab
-  # HABgraph <- filter(input$year, input$month, and select the variable)
-  # name it something else and then call it
-  # could make a separate data frame for color for each input (e.g. green for chlorophyll); when you call it in the plot, you say look at this data frame, if it's input 3, grab row 3 from this column
-  
-  # HAB_chart <- filter(input$location, input$year)
+##################################### HAB ABUNDANCE PLOT #########################################
   
   # Send HAB abundance chart to the ui as "abunPlot"
   output$abunPlot <- renderPlot({
@@ -239,16 +247,12 @@ server <- function(input, output) {
             panel.border = element_blank(),
             axis.line = element_line(colour = "black"))
     
-    # need location (selectlocation_abun), then year (selectyear_abun), then variable (selectvar_abun) (with all months in the year)
-    
-    # ggplot() +
-    #       geom_col(clean_hab, aes(x = input$year, y = input$selectvar_abun)fill = "seagreen3", color = "seagreen") +
-    #        labs(x = "Month", y = "Variable") +
-    #       theme_bw() 
-    
-    
-    
   })
+  
+  
+##################################### TIME SERIES #########################################
+  
+  
 }
 
 # Run the application 
