@@ -223,7 +223,6 @@ server <- function(input, output) {
          tm_fill("COUNTY", palette = "Set1", alpha = 0.5)+
          tm_shape(sites_hab) +
          tm_bubbles(size = input$variable)+
-          
           tm_view(basemaps = "Stamen.TerrainBackground")
         
        
