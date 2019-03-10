@@ -196,41 +196,7 @@ server <- function(input, output) {
 
      })
        
-      # if (packageVersion("tmap") >= 2.0) {
-    #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
-    #     tm_shape(new_hab())+
-    #     tm_bubbles(input$variable, col = color, border.col = color) +
-    #     tm_shape(coast_counties) +
-    #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
-    # }
-    # else{
-    #   tm <- tm_shape(new_hab()) +
-    #     tm_bubbles(input$variable)+
-    #     tm_view(basemaps = "Stamen.TerrainBackground")
-  
-    # }
-
-     #   if (packageVersion("tmap") >= 2.0) {
-     #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
-     #     tm_shape(new_hab())+
-     #     tm_bubbles(input$variable, col = color, border.col = color) +
-     #     tm_shape(coast_counties) +
-     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
-     # }
-     # else{
-     #   tm <- tm_shape(new_hab()) +
-     #     tm_bubbles(input$variable)+
-     #     tm_shape(coast_counties) +
-     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
-     #     tm_view(basemaps = "Stamen.TerrainBackground")
-     #}
-
-  
-      # ggplot(selected_var$geometry)+
-      #   geom_sf(data = coast_counties, color = "gray80") +
-      #   geom_sf(data = selected_var, aes_string(fill = mapcolor), size = 4) +
-      #   theme_minimal()+
-      #   coord_sf(datum = NA)
+     
       
 
       output$Map <- renderLeaflet({
@@ -243,19 +209,6 @@ server <- function(input, output) {
           tm_view(basemaps = "Stamen.TerrainBackground")
         
        
-       # output$Map <- renderLeaflet({
-       #   leaflet() %>% 
-       #     addTiles() %>% 
-       #     addProviderTiles("Stamen.TerrainBackground") 
-       #     #setView(lng = 31.165580, lat = 48.379433, zoom = 6) %>%
-       #     # addCircles(lng = as.numeric(selected_var$longtitude), 
-       #     #            lat = as.numeric(selected_var$latitude), 
-       #     #            weight = 1, 
-       #     #            radius = sqrt(selected_var$variable)*30, 
-       #     #            vars = paste(selected_hab$location, ": ", selected_var$variable), 
-       #     #            color = "blue") 
-       #               # fillOpacity = UkrStat$Opacity) %>%
-       #    # addLegend("bottomleft", pal = pal, values = selected_var$variable, title = "Population in Regions") 
        
 
      tmap_mode("view")

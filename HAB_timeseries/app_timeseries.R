@@ -275,8 +275,7 @@ server <- function(input, output) {
       
     
     
-    ggplot(HAB_ts, aes_string(year, input$selectvar_time)) +
-      geom_line()
+   plot(HAB_ts)
     
     
     
