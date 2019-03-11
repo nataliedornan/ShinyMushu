@@ -357,7 +357,7 @@ server <- function(input, output) {
     tm <-
       tm_shape(coast_counties) +
       tm_fill("COUNTY", pallette = "Set1", 
-              alpha = 0.35, border.col = "black", legend.show = FALSE)+
+              alpha = 0.35, legend.show = FALSE)+
       tm_shape(selected_var()) +
       tm_bubbles(col = "location", size = input$variable_map, border.col = "black")+
       tm_view(basemaps = "Stamen.TerrainBackground") 
