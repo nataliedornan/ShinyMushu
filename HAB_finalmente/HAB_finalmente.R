@@ -365,7 +365,7 @@ server <- function(input, output) {
  
     tmap_mode("view")
 
-    tmap_leaflet(tm)
+    tmap_leaflet(tm) 
     
   })
   
