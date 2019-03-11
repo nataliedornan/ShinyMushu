@@ -88,7 +88,7 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                    
 ############## HAB ABUNDANCE PLOT TAB #############################################################
                    # Create tab for HAB Abundance Chart
-                   tabPanel(title = "HAB Abundance Chart",
+                   tabPanel(title = "Abundance Chart",
                             # Move sidebar containing widgets to right side of screen
                             sidebarLayout(position = "right",
                                           sidebarPanel(
@@ -155,8 +155,8 @@ sidebarLayout(
                                 "Pseudo Nitzschia Spp." = "pseudo_nitzschia_spp"),
                  selected = "chlorophyll"),
     
-    ##create group checkbox for y variables   
-    checkboxInput("logy", "Log Y", TRUE),
+  #  ##create group checkbox for y variables   
+  #  checkboxInput("logy", "Log Y", TRUE),
     
     radioButtons(inputId = "xvar", label = h3("Independent Variables"), 
                  choices = list("Akashiwo sp." = "akashiwo", 
@@ -187,37 +187,33 @@ sidebarLayout(
                             # Sidebar with a slider, radio, and select inputs 
                             sidebarLayout(
                               sidebarPanel(
-                                # radioButtons("year_map",
-                                #              label = "Year:",
-                                #              choices = list("2008" = 1,
-                                #                             "2009" = 2,
-                                #                             "2010" = 3,
-                                #                             "2011" = 4,
-                                #                             "2012" = 5,
-                                #                             "2013" = 6,
-                                #                             "2014" = 7,
-                                #                             "2015" = 8,
-                                #                             "2016" = 9,
-                                #                             "2018" = 10),
-                                #              selected = 1),
-                                # sliderInput("month_map",
-                                #             "Month:",
-                                #             min = 1,
-                                #             max = 12,
-                                #             value = 1),
+                                radioButtons("year_map",
+                                             label = "Year:",
+                                             choices = list("2008" = "2008",
+                                                            "2009" = "2009",
+                                                            "2010" = "2010",
+                                                            "2011" = "2011",
+                                                            "2012" = "2012",
+                                                            "2013" = "2012",
+                                                            "2014" = "2014",
+                                                            "2015" = "2015",
+                                                            "2016" = "2016",
+                                                            "2017" = "2017",
+                                                            "2018" = "2018"),
+                                             selected = "2008"),
+                                sliderInput("month_map",
+                                            "Month:",
+                                            min = 1,
+                                            max = 12,
+                                            value = 1),
                                 
                                 selectInput("variable_map",
                                             label = "Choose a HAB Variable:",
                                             choices = list("Akashiwo sp." = "akashiwo", 
                                                            "Alexandrium spp." = "alexandrium", 
-                                                           "Ammonia" = "ammonia", 
                                                            "Chlorophyll" = "chlorophyll", 
                                                            "Domoic Acid" = "domoic_acid", 
-                                                           "N+N" = "n_n", 
-                                                           "Phosphate" = "phosphate",
-                                                           "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp",
-                                                           "Silicate" = "silicate", 
-                                                           "Water Temp" = "water_temp"),
+                                                           "Pseudo Nitzschia spp." = "pseudo_nitzschia_spp"),
                                             selected = 1)
                               ),
                               
@@ -280,7 +276,18 @@ server <- function(input, output) {
   mydat <- reactive({
     
     HAB %>%
-      filter(location == input$location) 
+      filter(location == input$location) %>%
+      select("location",
+             "akashiwo", 
+             "alexandrium",
+             "ammonia", 
+             "chlorophyll", 
+             "domoic_acid", 
+             "n_n", 
+             "phosphate",
+             "pseudo_nitzschia_spp", 
+             "silicate", 
+             "water_temp")
   })
   
   #output$logy <- reactive({
@@ -304,7 +311,7 @@ server <- function(input, output) {
       labs(title = paste("Adj R2 = ",signif(summary(lm1())$adj.r.squared, 5),
                          "Intercept =",signif(lm1()$coef[[1]],5 ),
                          " Slope =",signif(lm1()$coef[[2]], 5),
-                         " P =",signif(summary(lm1())$coef[2,4], 5))) +
+                         " p =",signif(summary(lm1())$coef[2,4], 5))) +
       theme_bw()+
       xlab(print(input$xvar))+
       ylab(print(input$yvar))
@@ -314,12 +321,14 @@ server <- function(input, output) {
 ########## INTERACTIVE MAP OUTPUT #############
   
   #create new df for filtering input$year, input$month, and select the variables we want,
+  
   selected_var <- reactive({
     
-    clean_hab %>%
-      filter(year == input$year_map &
-               month == input$month_map) %>%
+    sites_hab %>%
+      filter(year == input$year_map | month == input$month_map) %>%
       select("location",
+             "year",
+             "month",
              "akashiwo", 
              "alexandrium",
              "ammonia", 
@@ -330,10 +339,7 @@ server <- function(input, output) {
              "pseudo_nitzschia_spp", 
              "silicate", 
              "water_temp",
-             "year_month",
-             "geometry",
-             "latitude",
-             "longitude")
+             "geometry")
   })
   
   
@@ -357,17 +363,14 @@ server <- function(input, output) {
   # 
   
   
-  
   output$Map <- renderLeaflet({
     
     tm <-
       tm_shape(coast_counties) +
       tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
-      tm_shape(sites_hab) +
-      tm_bubbles(size = input$variable_map, palette = "Set2")+
+      tm_shape(selected_var()) +
+      tm_bubbles(col = "location", size = input$variable_map)+
       tm_view(basemaps = "Stamen.TerrainBackground")
-
-
 
 
     tmap_mode("view")

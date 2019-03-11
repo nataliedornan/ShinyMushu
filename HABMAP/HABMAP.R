@@ -111,26 +111,73 @@ server <- function(input, output) {
   #create new df for filtering input$year, input$month, and select the variables we want,
   selected_var <- reactive({
     
-     sites_hab %>%
-      filter(year == input$year &
-               month == input$month) %>%
-      dplyr::select(location,
-                    akashiwo, 
-                    alexandrium,
-                    ammonia, 
-                    chlorophyll, 
-                    domoic_acid, 
-                    n_n, 
-                    phosphate,
-                    pseudo_nitzschia_spp, 
-                    silicate, 
-                    water_temp,
-                    geometry)
-
-
-   })
+      clean_hab %>%
+        filter(year == input$year) %>%
+        select("location",
+               "akashiwo", 
+               "alexandrium",
+               "ammonia", 
+               "chlorophyll", 
+               "domoic_acid", 
+               "n_n", 
+               "phosphate",
+               "pseudo_nitzschia_spp", 
+               "silicate", 
+               "water_temp",
+               "year_month",
+               "geometry",
+               "latitude",
+               "longitude")
+    })
     
-  
+  # 
+  #   
+  #   
+  #   
+  #   # %>%
+  #   #   select(akashiwo,
+  #   #          alexandrium,
+  #   #          ammonia,
+  #   #          chlorophyll,
+  #   #          domoic_acid,
+  #   #          n_n,
+  #   #          phosphate,
+  #   #          pseudo_nitzschia_spp,
+  #   #          silicate,
+  #   #          water_temp)
+  #   # 
+  #   
+  #   
+  # 
+  # 
+  # 
+  # 
+    # akashiwo,
+    # alexandrium,
+    # ammonia,
+    # chlorophyll,
+    # domoic_acid,
+    # n_n,
+    # phosphate,
+    # pseudo_nitzschia_spp,
+    # silicate,
+    # water_temp
+  # 
+  # 
+  # 
+  # 
+  # 
+  # })
+    
+  #  output$Map <- renderPlot({  
+    
+      
+     # selected_var <-  gathered_hab %>%
+     #    filter(year == input$year &
+     #             month == input$month &
+     #             Variable == input$variable)
+     #  
+      # 
      mapcolor <- reactive({
        
        switch(input$variable,
@@ -149,23 +196,66 @@ server <- function(input, output) {
 
      })
        
-     
+      # if (packageVersion("tmap") >= 2.0) {
+    #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
+    #     tm_shape(new_hab())+
+    #     tm_bubbles(input$variable, col = color, border.col = color) +
+    #     tm_shape(coast_counties) +
+    #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+    # }
+    # else{
+    #   tm <- tm_shape(new_hab()) +
+    #     tm_bubbles(input$variable)+
+    #     tm_view(basemaps = "Stamen.TerrainBackground")
+  
+    # }
+
+     #   if (packageVersion("tmap") >= 2.0) {
+     #   tm <- tm_basemap(leaflet::providers$Stamen.TerrainBackground) +
+     #     tm_shape(new_hab())+
+     #     tm_bubbles(input$variable, col = color, border.col = color) +
+     #     tm_shape(coast_counties) +
+     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)
+     # }
+     # else{
+     #   tm <- tm_shape(new_hab()) +
+     #     tm_bubbles(input$variable)+
+     #     tm_shape(coast_counties) +
+     #     tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+     #     tm_view(basemaps = "Stamen.TerrainBackground")
+     #}
+
+  
+      # ggplot(selected_var$geometry)+
+      #   geom_sf(data = coast_counties, color = "gray80") +
+      #   geom_sf(data = selected_var, aes_string(fill = mapcolor), size = 4) +
+      #   theme_minimal()+
+      #   coord_sf(datum = NA)
       
 
       output$Map <- renderLeaflet({
-        
-        
-        
-        
      
        tm <- 
          tm_shape(coast_counties) +
-         tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
-         tm_shape(data = selected_var()) +
+         tm_fill("COUNTY", palette = "Set1", alpha = 0.5)+
+         tm_shape(sites_hab) +
          tm_bubbles(size = input$variable)+
           tm_view(basemaps = "Stamen.TerrainBackground")
         
        
+       # output$Map <- renderLeaflet({
+       #   leaflet() %>% 
+       #     addTiles() %>% 
+       #     addProviderTiles("Stamen.TerrainBackground") 
+       #     #setView(lng = 31.165580, lat = 48.379433, zoom = 6) %>%
+       #     # addCircles(lng = as.numeric(selected_var$longtitude), 
+       #     #            lat = as.numeric(selected_var$latitude), 
+       #     #            weight = 1, 
+       #     #            radius = sqrt(selected_var$variable)*30, 
+       #     #            vars = paste(selected_hab$location, ": ", selected_var$variable), 
+       #     #            color = "blue") 
+       #               # fillOpacity = UkrStat$Opacity) %>%
+       #    # addLegend("bottomleft", pal = pal, values = selected_var$variable, title = "Population in Regions") 
        
 
      tmap_mode("view")
