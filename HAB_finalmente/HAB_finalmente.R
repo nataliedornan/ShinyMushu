@@ -187,26 +187,26 @@ sidebarLayout(
                             # Sidebar with a slider, radio, and select inputs 
                             sidebarLayout(
                               sidebarPanel(
-                                radioButtons("year",
-                                             label = "Year:",
-                                             choices = list("2008" = 1,
-                                                            "2009" = 2,
-                                                            "2010" = 3,
-                                                            "2011" = 4,
-                                                            "2012" = 5,
-                                                            "2013" = 6,
-                                                            "2014" = 7,
-                                                            "2015" = 8,
-                                                            "2016" = 9,
-                                                            "2018" = 10),
-                                             selected = 1),
-                                sliderInput("month",
-                                            "Month:",
-                                            min = 1,
-                                            max = 12,
-                                            value = 1),
+                                # radioButtons("year_map",
+                                #              label = "Year:",
+                                #              choices = list("2008" = 1,
+                                #                             "2009" = 2,
+                                #                             "2010" = 3,
+                                #                             "2011" = 4,
+                                #                             "2012" = 5,
+                                #                             "2013" = 6,
+                                #                             "2014" = 7,
+                                #                             "2015" = 8,
+                                #                             "2016" = 9,
+                                #                             "2018" = 10),
+                                #              selected = 1),
+                                # sliderInput("month_map",
+                                #             "Month:",
+                                #             min = 1,
+                                #             max = 12,
+                                #             value = 1),
                                 
-                                selectInput("variable",
+                                selectInput("variable_map",
                                             label = "Choose a HAB Variable:",
                                             choices = list("Akashiwo sp." = "akashiwo", 
                                                            "Alexandrium spp." = "alexandrium", 
@@ -317,8 +317,8 @@ server <- function(input, output) {
   selected_var <- reactive({
     
     clean_hab %>%
-      filter(year == input$year &
-               month == input$month) %>%
+      filter(year == input$year_map &
+               month == input$month_map) %>%
       select("location",
              "akashiwo", 
              "alexandrium",
@@ -360,18 +360,18 @@ server <- function(input, output) {
   
   output$Map <- renderLeaflet({
     
-    tm <- 
+    tm <-
       tm_shape(coast_counties) +
       tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
       tm_shape(sites_hab) +
-      tm_bubbles(size = input$variable, palette = "Set2")+
+      tm_bubbles(size = input$variable_map, palette = "Set2")+
       tm_view(basemaps = "Stamen.TerrainBackground")
-    
-    
-    
-    
+
+
+
+
     tmap_mode("view")
-    
+
     tmap_leaflet(tm)
     
   })
