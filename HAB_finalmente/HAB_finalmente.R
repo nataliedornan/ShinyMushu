@@ -309,7 +309,7 @@ server <- function(input, output) {
     ggplot() +
       geom_point(data = mydat(), aes_string(x = input$xvar, y = input$yvar)) +
       geom_smooth(data = mydat(), aes_string(x = input$xvar, y = input$yvar), method = "lm", color = "seagreen3")+
-      labs(title = paste("Adj R2 = ",signif(summary(lm1())$adj.r.squared, 5),
+      labs(title = paste("R2 = ",signif(summary(lm1())$r.squared, 5),
                          "Intercept =",signif(lm1()$coef[[1]],5 ),
                          " Slope =",signif(lm1()$coef[[2]], 5),
                          " p =",signif(summary(lm1())$coef[2,4], 5))) +
