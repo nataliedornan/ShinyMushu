@@ -111,25 +111,24 @@ server <- function(input, output) {
   #create new df for filtering input$year, input$month, and select the variables we want,
   selected_var <- reactive({
     
-      clean_hab %>%
-        filter(year == input$year &
-                month == input$month) %>%
-        select("location",
-               "akashiwo", 
-               "alexandrium",
-               "ammonia", 
-               "chlorophyll", 
-               "domoic_acid", 
-               "n_n", 
-               "phosphate",
-               "pseudo_nitzschia_spp", 
-               "silicate", 
-               "water_temp",
-               "year_month",
-               "geometry",
-               "latitude",
-               "longitude")
-    })
+     sites_hab %>%
+      filter(year == input$year &
+               month == input$month) %>%
+      dplyr::select(location,
+                    akashiwo, 
+                    alexandrium,
+                    ammonia, 
+                    chlorophyll, 
+                    domoic_acid, 
+                    n_n, 
+                    phosphate,
+                    pseudo_nitzschia_spp, 
+                    silicate, 
+                    water_temp,
+                    geometry)
+
+
+   })
     
   
      mapcolor <- reactive({
@@ -154,12 +153,16 @@ server <- function(input, output) {
       
 
       output$Map <- renderLeaflet({
+        
+        
+        
+        
      
        tm <- 
          tm_shape(coast_counties) +
          tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
-         tm_shape(sites_hab) +
-         tm_bubbles(size = input$variable, palette = "Set2")+
+         tm_shape(data = selected_var()) +
+         tm_bubbles(size = input$variable)+
           tm_view(basemaps = "Stamen.TerrainBackground")
         
        
