@@ -343,34 +343,18 @@ server <- function(input, output) {
   })
   
   
-  # mapcolor <- reactive({
-  #   
-  #   switch(input$variable,
-  #          
-  #          "Akashiwo sp." = "red",
-  #          "Alexandrium spp." = "blue",
-  #          "Ammonia" = "purple",
-  #          "Chlorophyll" = "green",
-  #          "Domoic Acid" = "yellow",
-  #          "N+N" = "cyan",
-  #          "Phosphate" = "maroon",
-  #          "Pseudo Nitzschia spp." = "darkolivegreen",
-  #          "Silicate" = "darkseagreen",
-  #          "Water Temp" = "coral" )
-  #   
-  #   
-  # })
-  # 
-  
+  #create tm_map of the counties the locations are found in. 
+  #Bubble plot the denisties of the HAB identifers. 
   
   output$Map <- renderLeaflet({
     
     tm <-
-      tm_shape(coast_counties) +
-      tm_fill("COUNTY", palette = "Set1", alpha = 0.5, legend.show = FALSE)+
+      tm_shape(coast_counties, border.col = "black") +
+      tm_fill("COUNTY", pallette = "Set1", 
+              alpha = 0.35,  legend.show = FALSE)+
       tm_shape(selected_var()) +
-      tm_bubbles(col = "location", size = input$variable_map)+
-      tm_view(basemaps = "Stamen.TerrainBackground")
+      tm_bubbles(col = "location", size = input$variable_map, border.col = "black", size.max = 2)+
+      tm_view(basemaps = "Stamen.TerrainBackground") 
 
 
     tmap_mode("view")
