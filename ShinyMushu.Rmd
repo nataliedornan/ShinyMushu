@@ -102,11 +102,11 @@ domoic_col
 ```{r TIME SERIES GRAPH}
 
 HAB_dates <- clean_hab %>%
- unite_("date", c("year", "month", "day")) %>% 
-  dplyr::select(date,
-                location,
-                chlorophyll) %>%
-  filter(location == "Stearns Wharf")
+ unite_("date", c("year", "month", "day"))
+  # dplyr::select(date,
+  #               location,
+  #               chlorophyll) %>%
+  # filter(location == "Stearns Wharf")
 
 HAB_dates$date <- ymd(HAB_dates$date)   
 

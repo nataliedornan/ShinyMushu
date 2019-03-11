@@ -174,24 +174,6 @@ server <- function(input, output) {
   # Send HAB abundance chart to the ui as "abunPlot"
   output$abunPlot <- renderPlot({
     
-    # use print to troubleshoot
-    # print(class(input$variable))
-    
-    # filtered <- HAB %>%
-    #   filter(location == input$selectlocation_abun,
-    #          year == input$selectyear_abun) %>%
-    #   select(month,
-    #          akashiwo, 
-    #          alexandrium, 
-    #          ammonia, 
-    #          chlorophyll, 
-    #          domoic_acid, 
-    #          n_n, 
-    #          phosphate,
-    #          pseudo_nitzschia_spp,
-    #          silicate, 
-    #          water_temp)
-    
     # filters by location only
     filtered <- HAB %>%
       filter(location == input$selectlocation_abun) %>%
@@ -207,24 +189,7 @@ server <- function(input, output) {
              pseudo_nitzschia_spp,
              silicate, 
              water_temp)
-
     
-    # abuncolor <- switch(input$selectvar_abun,
-    #                    
-    #                    "Akashiwo sp." = "red",
-    #                    "Alexandrium spp." = "blue",
-    #                    "Ammonia" = "purple",
-    #                    "Chlorophyll" = "green",
-    #                    "Domoic Acid" = "yellow",
-    #                    "N+N" = "cyan",
-    #                    "Phosphate" = "maroon",
-    #                    "Pseudo Nitzschia spp." = "darkolivegreen",
-    #                    "Silicate" = "darkseagreen",
-    #                    "Water Temp" = "coral" )
-    
-    # maybe don't allow to select by year, still show month by variable but do facet_wrap and show all the months
-    # compare seasonality of these species across all years
-    # TIME SERIES GRAPH INSTEAD?? see assignment 3
     
     ggplot(filtered, aes_string(x = "month", y = input$selectvar_abun)) +
       geom_col(fill = "seagreen", color = "seagreen") +
@@ -244,12 +209,36 @@ server <- function(input, output) {
   
 ##################################### TIME SERIES #########################################
   
-  HAB_select <- reactive({
+  # HAB_select <- reactive({
+  #   
+  #   # HAB_date_2 <- clean_hab %>%
+  #   #   filter(location == input$selectlocation_time) %>%
+  #   #   dplyr::select(year,
+  #   #                 month,
+  #   #                 akashiwo,
+  #   #                 alexandrium,
+  #   #                 ammonia,
+  #   #                 chlorophyll,
+  #   #                 domoic_acid,
+  #   #                 n_n,
+  #   #                 phosphate,
+  #   #                 silicate,
+  #   #                 water_temp)
+  #   
+  # })
+  
+  
+  output$timePlot <- renderPlot({
     
-    HAB_date_2 <- clean_hab %>%
+    HAB_dates <- clean_hab %>%
+      unite_("date", c("year", "month", "day"))
+    
+      HAB_dates$date <- ymd(HAB_dates$date)   
+      
+    
+    HAB_date_2 <- HAB_dates %>%
       filter(location == input$selectlocation_time) %>%
-      dplyr::select(year,
-                    month,
+      dplyr::select(date,
                     akashiwo,
                     alexandrium,
                     ammonia,
@@ -260,31 +249,13 @@ server <- function(input, output) {
                     silicate,
                     water_temp)
     
+    ggplot(HAB_date_2, aes(date, input$selectvar_time)) +
+      geom_line()
     
-    
-  })
-  
-  output$timePlot <- renderPlot({
-    
-    
-    
-    
-    HAB_ts <- ts(HAB_select, frequency = 12, start = c(2008), end = c(2017))
-    
-     
-      
-    
-    
-   plot(HAB_ts)
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    # HAB_ts <- ts(HAB_select$input$selectvar_time, frequency = 12, start = c(2008), end = c(2017))
+    # 
+    # plot(HAB_ts)
+    # 
     
   })
   
