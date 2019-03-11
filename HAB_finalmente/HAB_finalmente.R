@@ -277,7 +277,7 @@ server <- function(input, output) {
     
     HAB %>%
       filter(location == input$location) %>%
-      select("location",
+      dplyr::select("location",
              "akashiwo", 
              "alexandrium",
              "ammonia", 
@@ -332,7 +332,7 @@ server <- function(input, output) {
     
     sites_hab %>%
       filter(year == input$year_map | month == input$month_map) %>%
-      select("location",
+      dplyr::select("location",
              "year",
              "month",
              "akashiwo", 
