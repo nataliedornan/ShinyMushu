@@ -362,7 +362,7 @@ server <- function(input, output) {
       tm_bubbles(col = "location", size = input$variable_map, border.col = "black", size.max = 2)+
       tm_view(basemaps = "Stamen.TerrainBackground") 
 
-
+ 
     tmap_mode("view")
 
     tmap_leaflet(tm)
