@@ -86,9 +86,9 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                             )
                    ),
                    
-############## HAB ABUNDANCE PLOT TAB #############################################################
+############## HAB ABUNDANCE CHART TAB #############################################################
                    # Create tab for HAB Abundance Chart
-                   tabPanel(title = "Abundance Chart",
+                   tabPanel(title = "HAB Abundance Chart",
                             # Move sidebar containing widgets to right side of screen
                             sidebarLayout(position = "right",
                                           sidebarPanel(
@@ -130,9 +130,9 @@ ui <- navbarPage(theme = shinytheme("superhero"),
                    ),
                    
                    
-############## CORRELATION PLOT TAB #############################################################
-                   # Create tab for Correlation Plot
-                   tabPanel(title = "Correlation Plot",
+############## LINEAR REGRESSION MODEL TAB #############################################################
+                   # Create tab for Linear Regression Model
+                   tabPanel(title = "Linear Regression Model",
 sidebarLayout(
   sidebarPanel(
     
