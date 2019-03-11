@@ -110,7 +110,7 @@ server <- function(input, output) {
   
   lm1 <- reactive({
     lm(HAB[,names(HAB) %in% input$yvar] ~ HAB[,names(HAB) %in% input$xvar])
-  })  
+  })
   
   output$scatter <- renderPlot({
     

@@ -303,6 +303,7 @@ server <- function(input, output) {
     lm(HAB[,names(HAB) %in% input$yvar] ~ HAB[,names(HAB) %in% input$xvar])
   })  
   
+  
   output$scatter <- renderPlot({
     
     ggplot() +
@@ -314,7 +315,12 @@ server <- function(input, output) {
                          " p =",signif(summary(lm1())$coef[2,4], 5))) +
       theme_bw()+
       xlab(print(input$xvar))+
-      ylab(print(input$yvar))
+      ylab(print(input$yvar))+
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            panel.border = element_blank(),
+            axis.line = element_line(colour = "black"))
     
   })
    
